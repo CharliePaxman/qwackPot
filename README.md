@@ -4,6 +4,6 @@ This code takes simple, human-readable inputs and produces the DWUCK4 input card
 
 The code takes **GENERAL** input values, defining the experimental conditions, and **SPECIFIC** input values, defining individual populated states in the heavy recoil nucleus.
 
-
+- for bash script to work, the dwuck4 executable, DWUCK4.exe, has to be as the same path -- i.e. /path/to/runQwackAndDwuck.sh, /path/to/qwuackPot/... and /path/to/DWUCK4.exe. Else, edit bash.
 
 (expand on this....)
