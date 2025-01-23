@@ -1,0 +1,9 @@
+# ignore input and output files
+Output/
+qwackPot/ListOfOutputFiles.txt
+qwackPot/cards/
+
+# ignore DWUCK files, which should be in this same folder
+DWUCK4.exe
+build
+
