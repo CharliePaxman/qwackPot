@@ -406,6 +406,9 @@ void InputBlock6(){
 }
 
 void InputBlock7(){
+  // FISW = 0 for bound states, but =2 for unbound states
+  double FISW = 0.0;  if(Ex>=Sep){FISW=2.0;}
+  
   ofstream file;
   file.open(outputFile.c_str(),ios::app);
   file.setf(ios::fixed, ios::floatfield);
@@ -435,8 +438,8 @@ void InputBlock7(){
          << setw(8) << (double) l
          << setw(8) << (double) doubJ
          << setw(8) << (double) AB-AL   //TWICE SPIN OF NEUTRON! Convenient for now
-         << setw(8) << (double) 0.0      //empty
-         << setw(8) << (double) 0.0;     //IMPORTANT! Select FISW, keep binding E fixed
+         << setw(8) << (double) 0.0     //empty
+         << setw(8) << (double) FISW;   //bound or unbound?
     file << "\n"; 
    
     file.close(); 
