@@ -26,15 +26,14 @@ Sep=7.608;  #Separation energy of transfered nucleon
 #   in order to calculate many input cards at once
 
 # Define the energies of the states to model (in MeV)
-stateArr=("0.000" "1.000") # "2.000" "2.500" "5.000" "6.000" "8.000")
+stateArr=("0.000" "1.675" "3.572" "4.071" "4.456" "5.004" "5.228" "5.629" "7.252" "7.622" "7.855" "8.313" "8.561")
 
 # Define the n, l, and 2*j quantum numbers of the transfered nucleon
 #    Note that the input is weird here! Need to add each orbital 
 #    as the same index of each of the three arrays... sorry...
-
-nArr=("0" "1")
-lArr=("2" "0")
-doubJArr=("5" "1")
+nArr=("0" "0" "1")
+lArr=("2" "2" "0")
+doubJArr=("5" "3" "1")
 
 # Define the input and output potentials to use
 inputPotArr=("HSS" "AC" "Bo" "DCV" "LH" "PP")

@@ -7,3 +7,6 @@ qwackPot/cards/
 DWUCK4.exe
 build
 
+# ignore gnuplot plotting functons
+*.gnuplot
+*.png
