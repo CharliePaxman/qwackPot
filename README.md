@@ -4,9 +4,6 @@ This code takes simple, human-readable inputs and produces the DWUCK4 input card
 
 This is a quick personal-use code, and has not been rigorously stress-tested. Use at your own risk!
 
-## Many thanks to...
-The functions to calculate the DWBA potentials in `qPotentials.h` are from [Cleopatra for Ptolemy](https://fsunuc.physics.fsu.edu/git/rtang/PtolemyGUI/src/commit/f1b2d4a580f881893ed81447fe546bda6406421d/Cleopatra/potentials.h) by [Ryan Tang](https://fsunuc.physics.fsu.edu/git/rtang), which is itself based on the [globals_beta_v5](https://docs.google.com/spreadsheets/d/1fFDyJvTu4gAc8hc4gSqU7e7sp_mO_aK9/edit?pli=1&gid=1068274165#gid=1068274165) spreadsheet by [Ben Kay](https://sites.google.com/view/opticalpotentials/optical-potential-parameterizations). All I've done on top of this is make the potentials appropriate for DWUCK4, format the in/outputs, and a.
-
 ## How to use
 The code takes **GENERAL** input values, defining the experimental conditions, and **SPECIFIC** input values, defining individual populated states in the heavy recoil nucleus.
 
@@ -19,3 +16,6 @@ The code takes **GENERAL** input values, defining the experimental conditions, a
 - Add ADWA input potentials
 - Add support for (d,t), (p,d), etc.
 - Finish README
+
+## Many thanks to...
+The functions to calculate the DWBA potentials in `qPotentials.h` are from [Cleopatra for Ptolemy](https://fsunuc.physics.fsu.edu/git/rtang/PtolemyGUI/src/commit/f1b2d4a580f881893ed81447fe546bda6406421d/Cleopatra/potentials.h) by [Ryan Tang](https://fsunuc.physics.fsu.edu/git/rtang), which is itself based on the [globals_beta_v5](https://docs.google.com/spreadsheets/d/1fFDyJvTu4gAc8hc4gSqU7e7sp_mO_aK9/edit?pli=1&gid=1068274165#gid=1068274165) spreadsheet by [Ben Kay](https://sites.google.com/view/opticalpotentials/optical-potential-parameterizations). All I've done on top of this is make the potentials appropriate for DWUCK4, format the in/outputs, and add a bash script.
