@@ -4,6 +4,7 @@
 #include <iomanip>
 #include <fstream>
 #include "qPotentials.h"
+#include "qADWAPotentials.h"
 
 using namespace std;
 
@@ -158,12 +159,13 @@ void SelectIncomingPotential(string label){
 
   // Using ugly if-then ladder for now
   // maybe use map in the future?
-  if      (label=="HSS"){ x = deut_HSS2006(AT, ZT, beamE*AB); } 
-  else if (label=="AC" ){ x = deut_AC2006 (AT, ZT, beamE*AB); } 
-  else if (label=="Bo" ){ x = deut_Bo1988 (AT, ZT, beamE*AB); } 
-  else if (label=="DCV"){ x = deut_DCV1980(AT, ZT, beamE*AB); } 
-  else if (label=="LH" ){ x = deut_LH1974 (AT, ZT, beamE*AB); }
-  else if (label=="PP" ){ x = deut_PP1963 (AT, ZT, beamE*AB); }
+  if      (label=="HSS"){   x = deut_HSS2006(AT, ZT, beamE*AB); } 
+  else if (label=="AC" ){   x = deut_AC2006 (AT, ZT, beamE*AB); } 
+  else if (label=="Bo" ){   x = deut_Bo1988 (AT, ZT, beamE*AB); } 
+  else if (label=="DCV"){   x = deut_DCV1980(AT, ZT, beamE*AB); } 
+  else if (label=="LH" ){   x = deut_LH1974 (AT, ZT, beamE*AB); }
+  else if (label=="PP" ){   x = deut_PP1963 (AT, ZT, beamE*AB); }
+  else if (label=="ADWA" ){ x = adwa_CH1991 (AT, ZT, beamE*AB); }
 
   if(!x){cout << " FAILED TO SET INCOMING PARAMETERS" << endl;}
 
@@ -415,15 +417,16 @@ void InputBlock7(){
   file.precision(3);
   if(file.is_open()){
     // LINE 1
-    file << setw(8) << (double) Ex-Sep
-         << setw(8) << (double) AB-AL
-         << setw(8) << (double) ZB-ZL
-         << setw(8) << (double) AT
-         << setw(8) << (double) ZT
-         << setw(8) << (double) 1.25
-         << setw(8) << (double) 0.0
-         << setw(8) << (double) 0.0
-         << setw(8) << (double) AB-AL;  //TWICE SPIN OF NEUTRON! Convenient for now
+    file << setw(8) << (double) Ex-Sep  // Binding energy of single particle
+         << setw(8) << (double) AB-AL   // Single particle mass
+         << setw(8) << (double) ZB-ZL   // Single particle charge
+         << setw(8) << (double) AT      // Core nucleus mass
+         << setw(8) << (double) ZT      // Core nucleus charge
+         << setw(8) << (double) 1.25    // Reduced charge radius
+         << setw(8) << (double) 0.0     // Diffuseness (not implemented)
+         << setw(8) << (double) 0.0     // Nonlocality parameter
+         << setw(8) << (double) AB-AL;  // TWICE SPIN OF NEUTRON! Convenient for now
+         //<< setw(8) << (double) abs(doubFinalSpin-doubInitSpin);  //TWICE SPIN OF NEUTRON! Convenient for now
     file << "\n"; 
  
     // LINE 2

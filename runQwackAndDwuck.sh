@@ -27,17 +27,20 @@ Sep=7.608;  #Separation energy of transfered nucleon
 
 # Define the energies of the states to model (in MeV)
 stateArr=("0.000" "1.675" "3.572" "4.071" "4.456" "5.004" "5.228" "5.629" "7.252" "7.622" "7.855" "8.313" "8.561")
+#stateArr=("0.000" "1.000" "2.000" "3.000" "4.000" "5.000" "6.000" "7.000" "8.000" "9.000")
 
 # Define the n, l, and 2*j quantum numbers of the transfered nucleon
 #    Note that the input is weird here! Need to add each orbital 
 #    as the same index of each of the three arrays... sorry...
-nArr=("0" "0" "1")
-lArr=("2" "2" "0")
-doubJArr=("5" "3" "1")
+nArr=(    "0" "0" "1" "0" "1" "0")
+lArr=(    "2" "2" "0" "3" "1" "4")
+doubJArr=("5" "3" "1" "7" "3" "9")
 
 # Define the input and output potentials to use
-inputPotArr=("HSS" "AC" "Bo" "DCV" "LH" "PP")
-outputPotArr=("KD" "CH" "Mt" "BG" "P")
+inputPotArr=("ADWA" "AC" "HSS")
+outputPotArr=("CH" "CH" "CH")
+#inputPotArr=("HSS" "AC" "Bo" "DCV" "LH" "PP")
+#outputPotArr=("KD" "CH" "Mt" "BG" "P")
 
 #=====================================================
 ############# GENERATING QWACKPOT FILES ##############
