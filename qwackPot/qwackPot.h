@@ -4,6 +4,7 @@
 #include <iomanip>
 #include <fstream>
 #include "qPotentials.h"
+#include "qADWAPotentials.h"
 
 using namespace std;
 
@@ -158,12 +159,13 @@ void SelectIncomingPotential(string label){
 
   // Using ugly if-then ladder for now
   // maybe use map in the future?
-  if      (label=="HSS"){ x = deut_HSS2006(AT, ZT, beamE*AB); } 
-  else if (label=="AC" ){ x = deut_AC2006 (AT, ZT, beamE*AB); } 
-  else if (label=="Bo" ){ x = deut_Bo1988 (AT, ZT, beamE*AB); } 
-  else if (label=="DCV"){ x = deut_DCV1980(AT, ZT, beamE*AB); } 
-  else if (label=="LH" ){ x = deut_LH1974 (AT, ZT, beamE*AB); }
-  else if (label=="PP" ){ x = deut_PP1963 (AT, ZT, beamE*AB); }
+  if      (label=="HSS"){   x = deut_HSS2006(AT, ZT, beamE*AB); } 
+  else if (label=="AC" ){   x = deut_AC2006 (AT, ZT, beamE*AB); } 
+  else if (label=="Bo" ){   x = deut_Bo1988 (AT, ZT, beamE*AB); } 
+  else if (label=="DCV"){   x = deut_DCV1980(AT, ZT, beamE*AB); } 
+  else if (label=="LH" ){   x = deut_LH1974 (AT, ZT, beamE*AB); }
+  else if (label=="PP" ){   x = deut_PP1963 (AT, ZT, beamE*AB); }
+  else if (label=="ADWA" ){ x = adwa_CH1991 (AT, ZT, beamE*AB); }
 
   if(!x){cout << " FAILED TO SET INCOMING PARAMETERS" << endl;}
 

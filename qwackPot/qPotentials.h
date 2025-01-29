@@ -3,16 +3,18 @@
 // which is itself based on globals_beta_v5, which I had previously adapted for DWUCK4 (see file globals_beta_v5_AdaptedForDWUCK4.ods)
 // This aims to be an automatable DWUCK4 input file generator for use in macro
 
-
-//global variables
+//-------------------------------
+//Global variables
+//Final values of potential
 double v, r0, a;
 double vi, ri0, ai;
 double vsi, rsi0, asi;
 double vso, rso0, aso;
 double vsoi, rsoi0, asoi, rc0;
 
-//general
+//General
 bool loud = false;
+//-------------------------------
 
 void ConvertPtolemyToDWUCK4(){
   /* v    */ v    = -v;
@@ -522,16 +524,4 @@ bool prot_P1963(int A, int Z, double E){
 
   return true;
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
