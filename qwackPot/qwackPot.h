@@ -417,15 +417,16 @@ void InputBlock7(){
   file.precision(3);
   if(file.is_open()){
     // LINE 1
-    file << setw(8) << (double) Ex-Sep
-         << setw(8) << (double) AB-AL
-         << setw(8) << (double) ZB-ZL
-         << setw(8) << (double) AT
-         << setw(8) << (double) ZT
-         << setw(8) << (double) 1.25
-         << setw(8) << (double) 0.0
-         << setw(8) << (double) 0.0
-         << setw(8) << (double) AB-AL;  //TWICE SPIN OF NEUTRON! Convenient for now
+    file << setw(8) << (double) Ex-Sep  // Binding energy of single particle
+         << setw(8) << (double) AB-AL   // Single particle mass
+         << setw(8) << (double) ZB-ZL   // Single particle charge
+         << setw(8) << (double) AT      // Core nucleus mass
+         << setw(8) << (double) ZT      // Core nucleus charge
+         << setw(8) << (double) 1.25    // Reduced charge radius
+         << setw(8) << (double) 0.0     // Diffuseness (not implemented)
+         << setw(8) << (double) 0.0     // Nonlocality parameter
+         << setw(8) << (double) AB-AL;  // TWICE SPIN OF NEUTRON! Convenient for now
+         //<< setw(8) << (double) abs(doubFinalSpin-doubInitSpin);  //TWICE SPIN OF NEUTRON! Convenient for now
     file << "\n"; 
  
     // LINE 2

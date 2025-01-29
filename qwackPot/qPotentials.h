@@ -18,9 +18,9 @@ bool loud = false;
 
 void ConvertPtolemyToDWUCK4(){
   /* v    */ v    = -v;
-  /* vi   */
+  /* vi   */ vi   = -vi;
   /* vsi  */ vsi  = vsi*4;
-  /* vso  */ vso  = vso*2;  //!!!DOES THIS ALSO NEED TO BE NEGATIVE??
+  /* vso  */ vso  = vso*2;  
   /* vsoi */ vsoi = vsoi*2;
 }
 
