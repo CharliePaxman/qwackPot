@@ -2,6 +2,8 @@
 Output/
 qwackPot/ListOfOutputFiles.txt
 qwackPot/cards/
+qwackPot/Input_General.txt
+qwackPot/Input_Specific.txt
 
 # ignore DWUCK files, which should be in this same folder
 DWUCK4.exe
@@ -10,3 +12,7 @@ build
 # ignore gnuplot plotting functons
 *.gnuplot
 *.png
+
+# ignoring output files
+*.txt
+

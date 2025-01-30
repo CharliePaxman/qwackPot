@@ -8,7 +8,7 @@ using namespace std;
 
 //Compile me in location:
 //   cd /path/to/DWUCK4
-//With commnad:
+//With command:
 //   g++ -o qwackPot/qwackConvert qwackPot/qwackConvert.cxx
 
 int main ( int n_args, const char** args ){
