@@ -1,5 +1,6 @@
 # ignore input and output files
-Output/
+Output_Unprocessed/
+Output_Processed/
 qwackPot/ListOfOutputFiles.txt
 qwackPot/cards/
 qwackPot/Input_General.txt
@@ -12,7 +13,4 @@ build
 # ignore gnuplot plotting functons
 *.gnuplot
 *.png
-
-# ignoring output files
-*.txt
 
