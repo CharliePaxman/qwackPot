@@ -152,45 +152,54 @@ void LoadGlobalVariables_Specific(int iter){
 
 }
 
-void SelectIncomingPotential(string label){
-  //Note that, for input potential, energy is simply beamE*AB
-  //This is not the case for output potential!
+void SelectDeuteronPotential(string label, int A, int Z, int InOut){
   bool x = false; 
-
-  // Using ugly if-then ladder for now
-  // maybe use map in the future?
-  if      (label=="HSS"){   x = deut_HSS2006(AT, ZT, beamE*AB); } 
-  else if (label=="AC" ){   x = deut_AC2006 (AT, ZT, beamE*AB); } 
-  else if (label=="Bo" ){   x = deut_Bo1988 (AT, ZT, beamE*AB); } 
-  else if (label=="DCV"){   x = deut_DCV1980(AT, ZT, beamE*AB); } 
-  else if (label=="LH" ){   x = deut_LH1974 (AT, ZT, beamE*AB); }
-  else if (label=="PP" ){   x = deut_PP1963 (AT, ZT, beamE*AB); }
-  else if (label=="ADWA" ){ x = adwa_CH1991 (AT, ZT, beamE*AB); }
-
-  if(!x){cout << " FAILED TO SET INCOMING PARAMETERS" << endl;}
-
-}
-
-void SelectOutgoingPotential(string label){
-  //Note that, for output potential, energy is:
+  double energy = -1000;
+  
+  //For input potential, energy is simply beamE*AB
+  //For output potential, energy is:
   //    Qval - Ex + beamE*AB
   //i.e.:
   //    (massB+massT) - (massL+massH) - Ex + beamE*AB
   //for now, Qval is an input, could calculate with AME tables in the future?
-  bool x = false; 
-
-  double Ein = Qval-Ex+(beamE*AB); //cout <<"Ein=====" << Ein << endl;
+  if     (InOut == 1){ energy = beamE*AB; }
+  else if(InOut == 2){ energy = Qval-Ex+(beamE*AB); }
 
   // Using ugly if-then ladder for now
   // maybe use map in the future?
-  if      (label=="KD"){ x = prot_KD2003(AT, ZT, Ein); } 
-  else if (label=="CH"){ x = prot_CH1991(AT, ZT, Ein); } 
-  else if (label=="Mt"){ x = prot_Mt1971(AT, ZT, Ein); } 
-  else if (label=="BG"){ x = prot_BG1969(AT, ZT, Ein); } 
-  else if (label=="P" ){ x = prot_P1963 (AT, ZT, Ein); }
+  if      (label=="HSS"){   x = deut_HSS2006(A, Z, energy); } 
+  else if (label=="AC" ){   x = deut_AC2006 (A, Z, energy); } 
+  else if (label=="Bo" ){   x = deut_Bo1988 (A, Z, energy); } 
+  else if (label=="DCV"){   x = deut_DCV1980(A, Z, energy); } 
+  else if (label=="LH" ){   x = deut_LH1974 (A, Z, energy); }
+  else if (label=="PP" ){   x = deut_PP1963 (A, Z, energy); }
+  else if (label=="ADWA" ){ x = adwa_CH1991 (A, Z, energy); }
 
   if(!x){cout << " FAILED TO SET INCOMING PARAMETERS" << endl;}
+}
 
+void SelectProtonPotential(string label, int A, int Z, int InOut){
+  bool x = false; 
+  double energy = -1000;
+  
+  //For input potential, energy is simply beamE*AB
+  //For output potential, energy is:
+  //    Qval - Ex + beamE*AB
+  //i.e.:
+  //    (massB+massT) - (massL+massH) - Ex + beamE*AB
+  //for now, Qval is an input, could calculate with AME tables in the future?
+  if     (InOut == 1){ energy = beamE*AB; }
+  else if(InOut == 2){ energy = Qval-Ex+(beamE*AB); }
+
+  // Using ugly if-then ladder for now
+  // maybe use map in the future?
+  if      (label=="KD"){ x = prot_KD2003(A, Z, energy); } 
+  else if (label=="CH"){ x = prot_CH1991(A, Z, energy); } 
+  else if (label=="Mt"){ x = prot_Mt1971(A, Z, energy); } 
+  else if (label=="BG"){ x = prot_BG1969(A, Z, energy); } 
+  else if (label=="P" ){ x = prot_P1963 (A, Z, energy); }
+  
+  if(!x){cout << " FAILED TO SET INCOMING PARAMETERS" << endl;}
 }
 
 void InputBlock1(){
@@ -355,12 +364,8 @@ void InputBlock5_ADWA(string potFile){
   ///// DO THIS!!!
 
 
-
-
   ifstream infile(potFile.c_str());
   if(!infile){cout << "ERROR! Cannot open file: " << potFile << endl;}
-
-
 
   // Read in the TWOFNR file to get real central and imaginary central
   ofstream file;
@@ -405,53 +410,42 @@ void InputBlock5_ADWA(string potFile){
     // Read & write next chunk
     while(getline(infile,line)){
       cout << line << endl;
-      //istringstream iss(line);
-      //string substring{};
-      //vector<string> substrings{};
-     
-      //if(!interstitial){
-        if(line.length()>14){
-          // Then line has data
-          
-          a = stod(line.substr( 0,14));  //a.push_back(stod(line.substr( 0,14)));
-          b = stod(line.substr(14,14));  //b.push_back(stod(line.substr(14,14)));
-          c = stod(line.substr(28,14));  //c.push_back(stod(line.substr(28,14)));
-          if(line.length()>45){
-            d = stod(line.substr(42,14));  //d.push_back(stod(line.substr(42,14)));
-            e = stod(line.substr(56,14));  //e.push_back(stod(line.substr(56,14)));
-          } else { d = 0; e = 0; }
-          cout << a << endl;
-          cout << b << endl;
-          cout << c << endl;
-          cout << d << endl;
-          cout << e << endl;
-
-
-          file << scientific;
-          file.precision(7);
-          file << setw(16) << (double) a 
-               << setw(16) << (double) b
-               << setw(16) << (double) c
-               << setw(16) << (double) d
-               << setw(16) << (double) e;
-          file << "\n"; 
         
-        } else {
-          // Then line is interstitial! Stop reading
-	  cout << "INTER!!! -------------" << endl;
-          //interstitial++; 
-	  //interstitial=true;
-	  break;
-        }
-      //}
+      if(line.length()>14){  // Line has data
+        a = stod(line.substr( 0,14));
+        b = stod(line.substr(14,14));
+        c = stod(line.substr(28,14));
+        if(line.length()>45){
+          d = stod(line.substr(42,14));
+          e = stod(line.substr(56,14));
+        } else { d = 0; e = 0; }
+        cout << a << endl;
+        cout << b << endl;
+        cout << c << endl;
+        cout << d << endl;
+        cout << e << endl;
+
+        file << scientific;
+        file.precision(7);
+        file << setw(16) << (double) a 
+             << setw(16) << (double) b
+             << setw(16) << (double) c
+             << setw(16) << (double) d
+             << setw(16) << (double) e;
+        file << "\n"; 
+      }else{ // Line is interstitial! Stop reading
+        cout << "INTER!!! -------------" << endl;
+        break;
+      }
     }
 
 cout << "NOW MOTING TO IMATINARY CNETRAL..." << endl;
 
-
-
     //--------------------------------------------------------
     // Imaginary central potential ---------------------------
+    file.setf(ios::fixed, ios::floatfield);
+    file.precision(3);
+
     // LINE 1 
     file << setw(8) << (double) 8.0;
     file << "\n"; 
@@ -468,73 +462,58 @@ cout << "NOW MOTING TO IMATINARY CNETRAL..." << endl;
     while(getline(infile,line)){
       cout << line << endl;
      
-      //if(interstitial<1){
-      if(!interstitial){
-        if(line.length()>14){
-          // Then line has data
-          
-          a = stod(line.substr( 0,14));  //a.push_back(stod(line.substr( 0,14)));
-          b = stod(line.substr(14,14));  //b.push_back(stod(line.substr(14,14)));
-          c = stod(line.substr(28,14));  //c.push_back(stod(line.substr(28,14)));
-          if(line.length()>45){
-            d = stod(line.substr(42,14));  //d.push_back(stod(line.substr(42,14)));
-            e = stod(line.substr(56,14));  //e.push_back(stod(line.substr(56,14)));
-          } else { d = 0; e = 0; }
-          cout << a << endl;
-          cout << b << endl;
-          cout << c << endl;
-          cout << d << endl;
-          cout << e << endl;
-
-
-          file << scientific;
-          file.precision(7);
-          file << setw(16) << (double) a 
-               << setw(16) << (double) b
-               << setw(16) << (double) c
-               << setw(16) << (double) d
-               << setw(16) << (double) e;
-          file << "\n"; 
+      if(line.length()>14){ // Line has data
         
-        } else {
-          // Then line is interstitial! Stop reading
-	  cout << "INTER!!! -------------" << endl;
-          //interstitial++; 
-          //interstitial = true; 
-	  break;
-        }
+        a = stod(line.substr( 0,14));
+        b = stod(line.substr(14,14));
+        c = stod(line.substr(28,14));
+        if(line.length()>45){
+          d = stod(line.substr(42,14));
+          e = stod(line.substr(56,14));
+        } else { d = 0; e = 0; }
+        cout << a << endl;
+        cout << b << endl;
+        cout << c << endl;
+        cout << d << endl;
+        cout << e << endl;
+
+
+        file << scientific;
+        file.precision(7);
+        file << setw(16) << (double) a 
+             << setw(16) << (double) b
+             << setw(16) << (double) c
+             << setw(16) << (double) d
+             << setw(16) << (double) e;
+        file << "\n"; 
+      
+      } else { // Line is interstitial! Stop reading
+        cout << "INTER!!! -------------" << endl;
+        break;
       }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    //----------------------------------------------------------
+    // Real & imaginary spin-orbit potential -------------------
+    file.setf(ios::fixed, ios::floatfield);
+    file.precision(3);
+  
+    SelectProtonPotential(Pout, AT, ZT, 1);
+    file << setw(8) << (double) -4.0
+         << setw(8) << (double) vso
+         << setw(8) << (double) rso0
+         << setw(8) << (double) aso
+         << setw(8) << (double) 0.0
+         << setw(8) << (double) vsoi
+         << setw(8) << (double) rsoi0
+         << setw(8) << (double) asoi;
+    file << "\n"; 
 
     file.close(); 
     if(loud){cout << "Written Input Block 5 -- ADWA" << endl;}
   } else {
     cout << "ERROR! File not opened" << endl;
   } 
-
-
-
-
-  // Use the proton DWBA to get the real spin-orbit and imaignary spin-orbit
-  ///// DO THIS!!!
-
 
 
 }

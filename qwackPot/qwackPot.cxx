@@ -10,7 +10,8 @@ void qwackPot(){
   cout << "========== STARTING QWACKPOT ==========" << endl;
   cout << "... CURRENTLY ONLY WORKING FOR (d,p) REACTIONS! ..." << endl;
 
-  loud=false;
+  //loud=false;
+  loud=true;
 
   // General inputs (i.e. experiment information)
   ClearGlobalVariables_General();
@@ -35,13 +36,13 @@ void qwackPot(){
     InputBlock4(0.1, 0.0, 50.);
   
     // Incoming channel
-//    SelectIncomingPotential(Pin);
-//    InputBlock5();
+    //SelectDeuteronPotential(Pin);
+    //InputBlock5();
     //InputBlock5_ADWA("./adwa/dwuckinput_19Odp_gs_d52.txt");
     InputBlock5_ADWA("./adwa/tran.adwa");
 
     // Outgoing channel
-    SelectOutgoingPotential(Pout);
+    SelectProtonPotential(Pout, AH, ZH, 2);
     InputBlock6();
   
     // Radial form factor for transfer
