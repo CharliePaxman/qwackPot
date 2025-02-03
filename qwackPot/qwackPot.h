@@ -152,7 +152,7 @@ void LoadGlobalVariables_Specific(int iter){
 
 }
 
-void SelectDeuteronPotential(string label, int A, int Z, int InOut){
+void SelectDeuteronPotential(string label, int Ax, int Zx, int InOut){
   bool x = false; 
   double energy = -1000;
   
@@ -167,18 +167,18 @@ void SelectDeuteronPotential(string label, int A, int Z, int InOut){
 
   // Using ugly if-then ladder for now
   // maybe use map in the future?
-  if      (label=="HSS"){   x = deut_HSS2006(A, Z, energy); } 
-  else if (label=="AC" ){   x = deut_AC2006 (A, Z, energy); } 
-  else if (label=="Bo" ){   x = deut_Bo1988 (A, Z, energy); } 
-  else if (label=="DCV"){   x = deut_DCV1980(A, Z, energy); } 
-  else if (label=="LH" ){   x = deut_LH1974 (A, Z, energy); }
-  else if (label=="PP" ){   x = deut_PP1963 (A, Z, energy); }
-  else if (label=="ADWA" ){ x = adwa_CH1991 (A, Z, energy); }
+  if      (label=="HSS"){   x = deut_HSS2006(Ax, Zx, energy); } 
+  else if (label=="AC" ){   x = deut_AC2006 (Ax, Zx, energy); } 
+  else if (label=="Bo" ){   x = deut_Bo1988 (Ax, Zx, energy); } 
+  else if (label=="DCV"){   x = deut_DCV1980(Ax, Zx, energy); } 
+  else if (label=="LH" ){   x = deut_LH1974 (Ax, Zx, energy); }
+  else if (label=="PP" ){   x = deut_PP1963 (Ax, Zx, energy); }
+  else if (label=="ADWA" ){ x = adwa_CH1991 (Ax, Zx, energy); }
 
   if(!x){cout << " FAILED TO SET INCOMING PARAMETERS" << endl;}
 }
 
-void SelectProtonPotential(string label, int A, int Z, int InOut){
+void SelectProtonPotential(string label, int Ax, int Zx, int InOut){
   bool x = false; 
   double energy = -1000;
   
@@ -193,11 +193,11 @@ void SelectProtonPotential(string label, int A, int Z, int InOut){
 
   // Using ugly if-then ladder for now
   // maybe use map in the future?
-  if      (label=="KD"){ x = prot_KD2003(A, Z, energy); } 
-  else if (label=="CH"){ x = prot_CH1991(A, Z, energy); } 
-  else if (label=="Mt"){ x = prot_Mt1971(A, Z, energy); } 
-  else if (label=="BG"){ x = prot_BG1969(A, Z, energy); } 
-  else if (label=="P" ){ x = prot_P1963 (A, Z, energy); }
+  if      (label=="KD"){ x = prot_KD2003(Ax, Zx, energy); } 
+  else if (label=="CH"){ x = prot_CH1991(Ax, Zx, energy); } 
+  else if (label=="Mt"){ x = prot_Mt1971(Ax, Zx, energy); } 
+  else if (label=="BG"){ x = prot_BG1969(Ax, Zx, energy); } 
+  else if (label=="P" ){ x = prot_P1963 (Ax, Zx, energy); }
   
   if(!x){cout << " FAILED TO SET INCOMING PARAMETERS" << endl;}
 }
@@ -409,7 +409,7 @@ void InputBlock5_ADWA(string potFile){
 
     // Read & write next chunk
     while(getline(infile,line)){
-      cout << line << endl;
+      //cout << line << endl;
         
       if(line.length()>14){  // Line has data
         a = stod(line.substr( 0,14));
@@ -419,11 +419,11 @@ void InputBlock5_ADWA(string potFile){
           d = stod(line.substr(42,14));
           e = stod(line.substr(56,14));
         } else { d = 0; e = 0; }
-        cout << a << endl;
-        cout << b << endl;
-        cout << c << endl;
-        cout << d << endl;
-        cout << e << endl;
+        //cout << a << endl;
+        //cout << b << endl;
+        //cout << c << endl;
+        //cout << d << endl;
+        //cout << e << endl;
 
         file << scientific;
         file.precision(7);
@@ -434,12 +434,12 @@ void InputBlock5_ADWA(string potFile){
              << setw(16) << (double) e;
         file << "\n"; 
       }else{ // Line is interstitial! Stop reading
-        cout << "INTER!!! -------------" << endl;
+        //cout << "INTER!!! -------------" << endl;
         break;
       }
     }
 
-cout << "NOW MOTING TO IMATINARY CNETRAL..." << endl;
+    //cout << "NOW MOTING TO IMATINARY CNETRAL..." << endl;
 
     //--------------------------------------------------------
     // Imaginary central potential ---------------------------
@@ -460,7 +460,7 @@ cout << "NOW MOTING TO IMATINARY CNETRAL..." << endl;
 
     // Read & write next chunk
     while(getline(infile,line)){
-      cout << line << endl;
+      //cout << line << endl;
      
       if(line.length()>14){ // Line has data
         
@@ -471,11 +471,11 @@ cout << "NOW MOTING TO IMATINARY CNETRAL..." << endl;
           d = stod(line.substr(42,14));
           e = stod(line.substr(56,14));
         } else { d = 0; e = 0; }
-        cout << a << endl;
-        cout << b << endl;
-        cout << c << endl;
-        cout << d << endl;
-        cout << e << endl;
+        //cout << a << endl;
+        //cout << b << endl;
+        //cout << c << endl;
+        //cout << d << endl;
+        //cout << e << endl;
 
 
         file << scientific;
@@ -488,7 +488,7 @@ cout << "NOW MOTING TO IMATINARY CNETRAL..." << endl;
         file << "\n"; 
       
       } else { // Line is interstitial! Stop reading
-        cout << "INTER!!! -------------" << endl;
+        //cout << "INTER!!! -------------" << endl;
         break;
       }
     }
@@ -508,13 +508,17 @@ cout << "NOW MOTING TO IMATINARY CNETRAL..." << endl;
          << setw(8) << (double) rsoi0
          << setw(8) << (double) asoi;
     file << "\n"; 
+    // for some reason, this is not being correctrly read as the end of PARTICLE 1 input?
 
+
+    file << setw(8) << (double) 0.0;
+    file << "\n"; 
+    
     file.close(); 
     if(loud){cout << "Written Input Block 5 -- ADWA" << endl;}
   } else {
     cout << "ERROR! File not opened" << endl;
   } 
-
 
 }
 
