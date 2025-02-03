@@ -30,14 +30,16 @@ void qwackPot(){
 
     // 'Preamble' blocks 
     InputBlock1();
-    InputBlock2(0.0, 0.5, 360.0);
+    InputBlock2(0.0, 1.0, 181.0); //InputBlock2(0.0, 0.5, 360.0); // twofnr max num angles is 181
     InputBlock3(15, 1);
     InputBlock4(0.1, 0.0, 50.);
   
     // Incoming channel
-    SelectIncomingPotential(Pin);
-    InputBlock5();
-  
+//    SelectIncomingPotential(Pin);
+//    InputBlock5();
+    //InputBlock5_ADWA("./adwa/dwuckinput_19Odp_gs_d52.txt");
+    InputBlock5_ADWA("./adwa/tran.adwa");
+
     // Outgoing channel
     SelectOutgoingPotential(Pout);
     InputBlock6();

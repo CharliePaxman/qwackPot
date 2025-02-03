@@ -349,6 +349,196 @@ void InputBlock5(){
   } 
 }
 
+void InputBlock5_ADWA(string potFile){
+  
+  // Run TWOFNR
+  ///// DO THIS!!!
+
+
+
+
+  ifstream infile(potFile.c_str());
+  if(!infile){cout << "ERROR! Cannot open file: " << potFile << endl;}
+
+
+
+  // Read in the TWOFNR file to get real central and imaginary central
+  ofstream file;
+  file.open(outputFile.c_str(),ios::app);
+  file.setf(ios::fixed, ios::floatfield);
+  file.precision(3);
+  if(file.is_open()){
+    // LINE 1
+    file << setw(8) << (double) beamE*AB
+         << setw(8) << (double) AB
+         << setw(8) << (double) ZB
+         << setw(8) << (double) AT
+         << setw(8) << (double) ZT
+         << setw(8) << (double) rc0
+         << setw(8) << (double) 0.0
+         << setw(8) << (double) 0.0
+         << setw(8) << (double) AB;  //TWICE SPIN OF DEUTERON! convenient for now
+    file << "\n"; 
+    
+    //--------------------------------------------------------
+    // Real central potential --------------------------------
+    // LINE 1 
+    file << setw(8) << (double) 8.0;
+    file << "\n"; 
+
+    // LINE 2
+    file << setw(8) << (double) 181. //num angles to be read in
+         << setw(8) << (double) 0.0;  // 0 = real, 1 = imag
+    file << "\n"; 
+
+    // LINE X
+    
+    string line;
+    double a, b, c, d, e;
+    //int interstitial = 0;
+    bool interstitial = false;
+
+    // Ignore TWOFNR preamble
+    int limit = 16; //For (d,p), ignore first 16 lines
+    for(int n=0; n<limit; n++){infile.ignore(500,'\n');}
+
+    // Read & write next chunk
+    while(getline(infile,line)){
+      cout << line << endl;
+      //istringstream iss(line);
+      //string substring{};
+      //vector<string> substrings{};
+     
+      //if(!interstitial){
+        if(line.length()>14){
+          // Then line has data
+          
+          a = stod(line.substr( 0,14));  //a.push_back(stod(line.substr( 0,14)));
+          b = stod(line.substr(14,14));  //b.push_back(stod(line.substr(14,14)));
+          c = stod(line.substr(28,14));  //c.push_back(stod(line.substr(28,14)));
+          if(line.length()>45){
+            d = stod(line.substr(42,14));  //d.push_back(stod(line.substr(42,14)));
+            e = stod(line.substr(56,14));  //e.push_back(stod(line.substr(56,14)));
+          } else { d = 0; e = 0; }
+          cout << a << endl;
+          cout << b << endl;
+          cout << c << endl;
+          cout << d << endl;
+          cout << e << endl;
+
+
+          file << scientific;
+          file.precision(7);
+          file << setw(16) << (double) a 
+               << setw(16) << (double) b
+               << setw(16) << (double) c
+               << setw(16) << (double) d
+               << setw(16) << (double) e;
+          file << "\n"; 
+        
+        } else {
+          // Then line is interstitial! Stop reading
+	  cout << "INTER!!! -------------" << endl;
+          //interstitial++; 
+	  //interstitial=true;
+	  break;
+        }
+      //}
+    }
+
+cout << "NOW MOTING TO IMATINARY CNETRAL..." << endl;
+
+
+
+    //--------------------------------------------------------
+    // Imaginary central potential ---------------------------
+    // LINE 1 
+    file << setw(8) << (double) 8.0;
+    file << "\n"; 
+
+    // LINE 2
+    file << setw(8) << (double) 181. //num angles to be read in
+         << setw(8) << (double) 1.0;  // 0 = real, 1 = imag
+    file << "\n"; 
+
+    // LINE X
+    interstitial = false;
+
+    // Read & write next chunk
+    while(getline(infile,line)){
+      cout << line << endl;
+     
+      //if(interstitial<1){
+      if(!interstitial){
+        if(line.length()>14){
+          // Then line has data
+          
+          a = stod(line.substr( 0,14));  //a.push_back(stod(line.substr( 0,14)));
+          b = stod(line.substr(14,14));  //b.push_back(stod(line.substr(14,14)));
+          c = stod(line.substr(28,14));  //c.push_back(stod(line.substr(28,14)));
+          if(line.length()>45){
+            d = stod(line.substr(42,14));  //d.push_back(stod(line.substr(42,14)));
+            e = stod(line.substr(56,14));  //e.push_back(stod(line.substr(56,14)));
+          } else { d = 0; e = 0; }
+          cout << a << endl;
+          cout << b << endl;
+          cout << c << endl;
+          cout << d << endl;
+          cout << e << endl;
+
+
+          file << scientific;
+          file.precision(7);
+          file << setw(16) << (double) a 
+               << setw(16) << (double) b
+               << setw(16) << (double) c
+               << setw(16) << (double) d
+               << setw(16) << (double) e;
+          file << "\n"; 
+        
+        } else {
+          // Then line is interstitial! Stop reading
+	  cout << "INTER!!! -------------" << endl;
+          //interstitial++; 
+          //interstitial = true; 
+	  break;
+        }
+      }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    file.close(); 
+    if(loud){cout << "Written Input Block 5 -- ADWA" << endl;}
+  } else {
+    cout << "ERROR! File not opened" << endl;
+  } 
+
+
+
+
+  // Use the proton DWBA to get the real spin-orbit and imaignary spin-orbit
+  ///// DO THIS!!!
+
+
+
+}
+
 void InputBlock6(){
   ofstream file;
   file.open(outputFile.c_str(),ios::app);
