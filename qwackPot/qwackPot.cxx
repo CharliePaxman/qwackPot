@@ -35,6 +35,7 @@ void qwackPot(){
     InputBlock3(15, 1);
     //InputBlock4(0.1, 0.0, 50.);
     InputBlock4(0.1, 0.0, 30.3);
+    //InputBlock4(0.1, 0.0, 26.3);
   
     // Incoming channel
     //SelectDeuteronPotential(Pin, AT, ZT, 1);

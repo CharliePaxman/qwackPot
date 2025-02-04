@@ -217,23 +217,23 @@ void InputBlock1(){
   file.open(outputFile.c_str());
  
   if(file.is_open()){
-    file << 1 //  1
-         << 0 //  2
-         << 0 //  3
-         << 0 //  4
-         << 0 //  5
-         << 0 //  6
-         << 0 //  7
-         << 0 //  8
-         << 0 //  9
-         << 0 // 10
-         << 0 // 11
-         << 0 // 12
-         << 1 // 13
-         << 0 // 14
-         << 0 // 15
-         << 0 // 16
-         << 2 // 17
+    file << 1    //////  1
+         << 0    //////  2
+         << 0    //////  3
+         << 0    //////  4
+         << 0    //////  5
+         << 0    //////  6
+         << 0    //////  7
+         << 0    //////  8
+         << 0    //////  9
+         << 0    ////// 10
+         << 0    ////// 11
+         << 0    ////// 12
+         << 1    ////// 13
+         << 0    ////// 14
+         << 0    ////// 15
+         << 0    ////// 16
+         << 2    ////// 17
          << buffer.str()
          << title.str();
 
@@ -358,20 +358,66 @@ void InputBlock5(){
   } 
 }
 
+pair<vector<double>,vector<double>> ReadPotentialFromTWOFNRFile(string potFile){
+  string line;
+  vector<double> real, imag;
+  pair<vector<double>, vector<double>> returnMe;
+
+  ifstream infile(potFile.c_str());
+  if(!infile){cout << "ERROR! Cannot open file: " << potFile << endl;}
+  
+  // Ignore TWOFNR preamble
+  int limit = 16; //For (d,p), ignore first 16 lines
+  for(int n=0; n<limit; n++){infile.ignore(500,'\n');}
+
+  int counter = 0;
+  // Read & write next chunk
+  while(getline(infile,line)){
+    if(line.length()<13){ break; }
+    if(line.length()>13){ real.push_back(stod(line.substr( 0,14))); }
+    if(line.length()>27){ real.push_back(stod(line.substr(14,14))); }
+    if(line.length()>41){ real.push_back(stod(line.substr(28,14))); }
+    if(line.length()>55){ real.push_back(stod(line.substr(42,14))); }
+    if(line.length()>69){ real.push_back(stod(line.substr(56,14))); }
+  }
+
+  while(getline(infile,line)){
+    if(line.length()<13){ break; }
+    if(line.length()>13){ imag.push_back(stod(line.substr( 0,14))); }
+    if(line.length()>27){ imag.push_back(stod(line.substr(14,14))); }
+    if(line.length()>41){ imag.push_back(stod(line.substr(28,14))); }
+    if(line.length()>55){ imag.push_back(stod(line.substr(42,14))); }
+    if(line.length()>69){ imag.push_back(stod(line.substr(56,14))); }
+  }
+
+  returnMe.first  = real;
+  returnMe.second = imag;
+
+
+  cout << " !!!!!!!! ------------>> " << real.size() << "    " << imag.size() << endl;
+
+  for (int i = 0; i<real.size(); i++){ cout << real.at(i) << " " << imag.at(i) << endl;}
+
+  return returnMe;
+
+}
+
 void InputBlock5_ADWA(string potFile){
   
   // Run TWOFNR
   ///// DO THIS!!!
 
 
-  ifstream infile(potFile.c_str());
-  if(!infile){cout << "ERROR! Cannot open file: " << potFile << endl;}
+  pair<vector<double>,vector<double>> pairPot;
+  pairPot = ReadPotentialFromTWOFNRFile(potFile);
+
 
   // Read in the TWOFNR file to get real central and imaginary central
   ofstream file;
   file.open(outputFile.c_str(),ios::app);
   file.setf(ios::fixed, ios::floatfield);
   file.precision(3);
+
   if(file.is_open()){
     // LINE 1
     file << setw(8) << (double) beamE*AB
@@ -392,106 +438,152 @@ void InputBlock5_ADWA(string potFile){
     file << "\n"; 
 
     // LINE 2
-    file << setw(8) << (double) 181. //num angles to be read in
+    file << setw(8) << (double) pairPot.first.size()  //num radial points to be read in
          << setw(8) << (double) 0.0;  // 0 = real, 1 = imag
     file << "\n"; 
 
     // LINE X
+    file << scientific;  file.precision(7);
+    for(int r = 0; r<pairPot.first.size()/5; r++){
+      if(loud){cout << r*5+0 << " " << r*5+1 << " " << r*5+2 << " " << r*5+3 << " " << r*5+4  << endl;}
+      file << setw(16) << pairPot.first.at(r*5 + 0) 
+           << setw(16) << pairPot.first.at(r*5 + 1) 
+           << setw(16) << pairPot.first.at(r*5 + 2) 
+           << setw(16) << pairPot.first.at(r*5 + 3) 
+           << setw(16) << pairPot.first.at(r*5 + 4); 
+      file << "\n"; 
+    }
+
+    //cout << "REMAINDER: " <<  pairPot.first.size()%5 << endl;
+    for(int r = pairPot.first.size()%5+1; r --> 1;){
+      if(loud){cout << pairPot.first.size()-r  << " ";}
+      file << setw(16) << pairPot.first.at(pairPot.first.size()-r); 
+    } 
+    file << "\n"; 
+    if(loud){cout << endl;}
     
-    string line;
-    double a, b, c, d, e;
-    //int interstitial = 0;
-    bool interstitial = false;
-
-    // Ignore TWOFNR preamble
-    int limit = 16; //For (d,p), ignore first 16 lines
-    for(int n=0; n<limit; n++){infile.ignore(500,'\n');}
-
-    // Read & write next chunk
-    while(getline(infile,line)){
-      //cout << line << endl;
-        
-      if(line.length()>14){  // Line has data
-        a = stod(line.substr( 0,14));
-        b = stod(line.substr(14,14));
-        c = stod(line.substr(28,14));
-        if(line.length()>45){
-          d = stod(line.substr(42,14));
-          e = stod(line.substr(56,14));
-        } else { d = 0; e = 0; }
-        //cout << a << endl;
-        //cout << b << endl;
-        //cout << c << endl;
-        //cout << d << endl;
-        //cout << e << endl;
-
-        file << scientific;
-        file.precision(7);
-        file << setw(16) << (double) a 
-             << setw(16) << (double) b
-             << setw(16) << (double) c
-             << setw(16) << (double) d
-             << setw(16) << (double) e;
-        file << "\n"; 
-      }else{ // Line is interstitial! Stop reading
-        //cout << "INTER!!! -------------" << endl;
-        break;
-      }
-    }
-
-    //cout << "NOW MOTING TO IMATINARY CNETRAL..." << endl;
-
-    //--------------------------------------------------------
-    // Imaginary central potential ---------------------------
-    file.setf(ios::fixed, ios::floatfield);
-    file.precision(3);
-
-    // LINE 1 
-    file << setw(8) << (double) 8.0;
-    file << "\n"; 
-
-    // LINE 2
-    file << setw(8) << (double) 181. //num angles to be read in
-         << setw(8) << (double) 1.0;  // 0 = real, 1 = imag
-    file << "\n"; 
-
-    // LINE X
-    interstitial = false;
-
-    // Read & write next chunk
-    while(getline(infile,line)){
-      //cout << line << endl;
-     
-      if(line.length()>14){ // Line has data
-        
-        a = stod(line.substr( 0,14));
-        b = stod(line.substr(14,14));
-        c = stod(line.substr(28,14));
-        if(line.length()>45){
-          d = stod(line.substr(42,14));
-          e = stod(line.substr(56,14));
-        } else { d = 0; e = 0; }
-        //cout << a << endl;
-        //cout << b << endl;
-        //cout << c << endl;
-        //cout << d << endl;
-        //cout << e << endl;
 
 
-        file << scientific;
-        file.precision(7);
-        file << setw(16) << (double) a 
-             << setw(16) << (double) b
-             << setw(16) << (double) c
-             << setw(16) << (double) d
-             << setw(16) << (double) e;
-        file << "\n"; 
-      
-      } else { // Line is interstitial! Stop reading
-        //cout << "INTER!!! -------------" << endl;
-        break;
-      }
-    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//    //cout << line << endl;
+//    //counter++;
+//	     
+//      file << scientific;
+//      file.precision(7);
+//
+////      if(line.length()<13){ break; }
+////      if(line.length()>13){ file << setw(16) << (double)  stod(line.substr( 0,14)) ;//<< "\n"; }// counter++;}
+////      if(line.length()>27){ file << setw(16) << (double)  stod(line.substr(14,14)) ;//<< "\n"; }// counter++;}
+////      if(line.length()>41){ file << setw(16) << (double)  stod(line.substr(28,14)) ;//<< "\n"; }// counter++;}
+////      if(line.length()>55){ file << setw(16) << (double)  stod(line.substr(42,14)) ;//<< "\n"; }// counter++;}
+////      if(line.length()>69){ file << setw(16) << (double)  stod(line.substr(56,14))    << "\n"; }// counter++;}
+//      
+//
+//      if(line.length()>14){ // Line has data
+//
+//	a = stod(line.substr( 0,14));
+//        b = stod(line.substr(14,14));
+//        c = stod(line.substr(28,14));
+//        if(line.length()>45){
+//          d = stod(line.substr(42,14));
+//          e = stod(line.substr(56,14));
+//        } else { d = 0; e = 0; }
+//        //cout << a << endl;
+//        //cout << b << endl;
+//        //cout << c << endl;
+//        //cout << d << endl;
+//        //cout << e << endl;
+//
+//        file << scientific;
+//        file.precision(7);
+//        file << setw(16) << (double) a  
+//             << setw(16) << (double) b 
+//             << setw(16) << (double) c 
+//             << setw(16) << (double) d 
+//             << setw(16) << (double) e ;
+//        file << "\n"; 
+//        }else{ // Line is interstitial! Stop reading
+//          //cout << "INTER!!! -------------" << endl;
+//          break;
+//        }
+//    }
+//
+//    //cout << "NOW MOTING TO IMATINARY CNETRAL..." << endl;
+//
+//    //--------------------------------------------------------
+//    // Imaginary central potential ---------------------------
+//    file.setf(ios::fixed, ios::floatfield);
+//    file.precision(3);
+//
+//    // LINE 1 
+//    file << setw(8) << (double) 8.0;
+//    file << "\n"; 
+//
+//    // LINE 2
+//    file << setw(8) << (double) 105.  //num angles to be read in
+//         << setw(8) << (double) 1.0;  // 0 = real, 1 = imag
+//    file << "\n"; 
+//
+//    // LINE X
+//    //interstitial = false;
+//
+//    // Read & write next chunk
+//    while(getline(infile,line)){
+//      //cout << line << endl;
+//      
+//      file << scientific;
+//      file.precision(7);
+//  
+//      //if(line.length()<13){ break; }
+//      //if(line.length()>13){ file << setw(16) << (double)  stod(line.substr( 0,14)) << "\n"; }
+//      //if(line.length()>27){ file << setw(16) << (double)  stod(line.substr(14,14)) << "\n"; }
+//      //if(line.length()>41){ file << setw(16) << (double)  stod(line.substr(28,14)) << "\n"; }
+//      //if(line.length()>55){ file << setw(16) << (double)  stod(line.substr(42,14)) << "\n"; }
+//      //if(line.length()>69){ file << setw(16) << (double)  stod(line.substr(56,14)) << "\n"; }
+//      
+//      if(line.length()>14){ // Line has data
+//        
+//        a = stod(line.substr( 0,14));
+//        b = stod(line.substr(14,14));
+//        c = stod(line.substr(28,14));
+//        if(line.length()>45){
+//          d = stod(line.substr(42,14));
+//          e = stod(line.substr(56,14));
+//        } else { d = 0; e = 0; }
+//        //cout << a << endl;
+//        //cout << b << endl;
+//        //cout << c << endl;
+//        //cout << d << endl;
+//        //cout << e << endl;
+//
+//
+//        file << scientific;
+//        file.precision(7);
+//        file << setw(16) << (double) a 
+//             << setw(16) << (double) b
+//             << setw(16) << (double) c
+//             << setw(16) << (double) d
+//             << setw(16) << (double) e;
+//        file << "\n"; 
+//      
+//      } else { // Line is interstitial! Stop reading
+//        //cout << "INTER!!! -------------" << endl;
+//        break;
+//      }
+//    }
 
     //----------------------------------------------------------
     // Real & imaginary spin-orbit potential -------------------
@@ -510,15 +602,187 @@ void InputBlock5_ADWA(string potFile){
     file << "\n"; 
     // for some reason, this is not being correctrly read as the end of PARTICLE 1 input?
 
-
-    file << setw(8) << (double) 0.0;
-    file << "\n"; 
-    
     file.close(); 
     if(loud){cout << "Written Input Block 5 -- ADWA" << endl;}
   } else {
     cout << "ERROR! File not opened" << endl;
   } 
+
+
+
+
+
+
+
+
+
+
+//  if(file.is_open()){
+//    // LINE 1
+//    file << setw(8) << (double) beamE*AB
+//         << setw(8) << (double) AB
+//         << setw(8) << (double) ZB
+//         << setw(8) << (double) AT
+//         << setw(8) << (double) ZT
+//         << setw(8) << (double) rc0
+//         << setw(8) << (double) 0.0
+//         << setw(8) << (double) 0.0
+//         << setw(8) << (double) AB;  //TWICE SPIN OF DEUTERON! convenient for now
+//    file << "\n"; 
+//    
+//    //--------------------------------------------------------
+//    // Real central potential --------------------------------
+//    // LINE 1 
+//    file << setw(8) << (double) 8.0;
+//    file << "\n"; 
+//
+//    // LINE 2
+//    file << setw(8) << (double) 150.  //num radial points to be read in
+//         << setw(8) << (double) 0.0;  // 0 = real, 1 = imag
+//    file << "\n"; 
+//
+//    // LINE X
+//    string line;
+//    double a, b, c, d, e;
+//    //int interstitial = 0;
+//    //bool interstitial = false;
+//
+//    // Ignore TWOFNR preamble
+//    int limit = 16; //For (d,p), ignore first 16 lines
+//    for(int n=0; n<limit; n++){infile.ignore(500,'\n');}
+//
+//    int counter = 0;
+//    // Read & write next chunk
+//    while(getline(infile,line)){
+//      //cout << line << endl;
+//      counter++;
+//	     
+//      file << scientific;
+//      file.precision(7);
+//
+////      if(line.length()<13){ break; }
+////      if(line.length()>13){ file << setw(16) << (double)  stod(line.substr( 0,14)) ;//<< "\n"; }// counter++;}
+////      if(line.length()>27){ file << setw(16) << (double)  stod(line.substr(14,14)) ;//<< "\n"; }// counter++;}
+////      if(line.length()>41){ file << setw(16) << (double)  stod(line.substr(28,14)) ;//<< "\n"; }// counter++;}
+////      if(line.length()>55){ file << setw(16) << (double)  stod(line.substr(42,14)) ;//<< "\n"; }// counter++;}
+////      if(line.length()>69){ file << setw(16) << (double)  stod(line.substr(56,14))    << "\n"; }// counter++;}
+//      
+//
+//      if(line.length()>14){ // Line has data
+//
+//	a = stod(line.substr( 0,14));
+//        b = stod(line.substr(14,14));
+//        c = stod(line.substr(28,14));
+//        if(line.length()>45){
+//          d = stod(line.substr(42,14));
+//          e = stod(line.substr(56,14));
+//        } else { d = 0; e = 0; }
+//        //cout << a << endl;
+//        //cout << b << endl;
+//        //cout << c << endl;
+//        //cout << d << endl;
+//        //cout << e << endl;
+//
+//        file << scientific;
+//        file.precision(7);
+//        file << setw(16) << (double) a  
+//             << setw(16) << (double) b 
+//             << setw(16) << (double) c 
+//             << setw(16) << (double) d 
+//             << setw(16) << (double) e ;
+//        file << "\n"; 
+//        }else{ // Line is interstitial! Stop reading
+//          //cout << "INTER!!! -------------" << endl;
+//          break;
+//        }
+//    }
+//
+//    //cout << "NOW MOTING TO IMATINARY CNETRAL..." << endl;
+//
+//    //--------------------------------------------------------
+//    // Imaginary central potential ---------------------------
+//    file.setf(ios::fixed, ios::floatfield);
+//    file.precision(3);
+//
+//    // LINE 1 
+//    file << setw(8) << (double) 8.0;
+//    file << "\n"; 
+//
+//    // LINE 2
+//    file << setw(8) << (double) 105.  //num angles to be read in
+//         << setw(8) << (double) 1.0;  // 0 = real, 1 = imag
+//    file << "\n"; 
+//
+//    // LINE X
+//    //interstitial = false;
+//
+//    // Read & write next chunk
+//    while(getline(infile,line)){
+//      //cout << line << endl;
+//      
+//      file << scientific;
+//      file.precision(7);
+//  
+//      //if(line.length()<13){ break; }
+//      //if(line.length()>13){ file << setw(16) << (double)  stod(line.substr( 0,14)) << "\n"; }
+//      //if(line.length()>27){ file << setw(16) << (double)  stod(line.substr(14,14)) << "\n"; }
+//      //if(line.length()>41){ file << setw(16) << (double)  stod(line.substr(28,14)) << "\n"; }
+//      //if(line.length()>55){ file << setw(16) << (double)  stod(line.substr(42,14)) << "\n"; }
+//      //if(line.length()>69){ file << setw(16) << (double)  stod(line.substr(56,14)) << "\n"; }
+//      
+//      if(line.length()>14){ // Line has data
+//        
+//        a = stod(line.substr( 0,14));
+//        b = stod(line.substr(14,14));
+//        c = stod(line.substr(28,14));
+//        if(line.length()>45){
+//          d = stod(line.substr(42,14));
+//          e = stod(line.substr(56,14));
+//        } else { d = 0; e = 0; }
+//        //cout << a << endl;
+//        //cout << b << endl;
+//        //cout << c << endl;
+//        //cout << d << endl;
+//        //cout << e << endl;
+//
+//
+//        file << scientific;
+//        file.precision(7);
+//        file << setw(16) << (double) a 
+//             << setw(16) << (double) b
+//             << setw(16) << (double) c
+//             << setw(16) << (double) d
+//             << setw(16) << (double) e;
+//        file << "\n"; 
+//      
+//      } else { // Line is interstitial! Stop reading
+//        //cout << "INTER!!! -------------" << endl;
+//        break;
+//      }
+//    }
+//
+//    //----------------------------------------------------------
+//    // Real & imaginary spin-orbit potential -------------------
+//    file.setf(ios::fixed, ios::floatfield);
+//    file.precision(3);
+//  
+//    SelectProtonPotential(Pout, AT, ZT, 1);
+//    file << setw(8) << (double) -4.0
+//         << setw(8) << (double) vso
+//         << setw(8) << (double) rso0
+//         << setw(8) << (double) aso
+//         << setw(8) << (double) 0.0
+//         << setw(8) << (double) vsoi
+//         << setw(8) << (double) rsoi0
+//         << setw(8) << (double) asoi;
+//    file << "\n"; 
+//    // for some reason, this is not being correctrly read as the end of PARTICLE 1 input?
+//
+//    file.close(); 
+//    if(loud){cout << "Written Input Block 5 -- ADWA" << endl;}
+//  } else {
+//    cout << "ERROR! File not opened" << endl;
+//  } 
 
 }
 
