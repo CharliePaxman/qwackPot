@@ -403,8 +403,8 @@ pair<vector<double>,vector<double>> ReadPotentialFromTWOFNRFile(string potFile){
 }
 
 void WritePotentialFromTWOFNRFile(vector<double> potential, ofstream& file){
-  
   file << scientific;  file.precision(7);
+  
   for(int r = 0; r<potential.size()/5; r++){
     if(loud){cout << r*5+0 << " " << r*5+1 << " " << r*5+2 << " " << r*5+3 << " " << r*5+4  << endl;}
     file << setw(16) << potential.at(r*5 + 0) 
@@ -415,32 +415,128 @@ void WritePotentialFromTWOFNRFile(vector<double> potential, ofstream& file){
     file << "\n"; 
   }
 
-  //cout << "REMAINDER: " <<  pairPot.first.size()%5 << endl;
   for(int r = potential.size()%5+1; r --> 1;){
     if(loud){cout << potential.size()-r  << " ";}
     file << setw(16) << potential.at(potential.size()-r); 
   } 
-  file << "\n"; 
-  if(loud){cout << endl;}
+
+  file << "\n"; if(loud){cout << endl;}
+}
+
+void RunTWOFNR_dp(double Ji, double Jf){
+  cout << "========================================================" << endl;
+  cout << "           BEGINING FRONT20 AUTOMATED PROCESS           " << endl;
+  cout << "========================================================" << endl;
+  
+  int model_ADWA1 = 6; //JTandy (for now...)
+  int model_ADWA2 = 1; //Reid soft core (for now...)
+//int model_out   = 1; //BechettiGreenlees 
+  int model_out   = 2; //ChapelHill 
+//int model_out   = 3; //Menet 
+//int model_out   = 4; //Perey 
+//int model_out   = 5; //JLM
+//int model_out   = 6; //KoningDelaroche 
+
+  string njjj;
+
+  // Move to subdirectory, in order for the output files of TWOFNR to be in a reasonablem place
+  system("pwd");  chdir("./adwa/");  system("pwd");
+
+  // Delete existing tran.adwa file
+  remove("tran.adwa");
+
+  // Fill in.front file
+  ofstream frontinput("in.front");
+  /* name */ 				frontinput << "adwa" << endl;
+  /* label */				frontinput << "adwa automated" << endl;
+  /* reaction - here (d,p) */		frontinput << 2 << endl;
+  /* calcualte entrance DW */		frontinput << 0 << endl;
+  /* calcualte exit DW */		frontinput << 0 << endl;
+  /* beam energy per nucleon */		frontinput << beamE << endl;
+  /* beam A, Z */			frontinput << AT << " " << ZT << endl;
+  /* default integration range */ 	frontinput << 1 << endl;
+  /* default number of partial waves */	frontinput << 1 << endl;
+  /* default c.o.m steps */		frontinput << "0 0 0" << endl;
+  /* L and J of transfered nucleon */	frontinput << l << " " << (double)doubJ/2. << endl;
+  /* nodes in function (0s,0p,1s...)*/	frontinput << n << endl;
+  /* calc using reaction Q value */	frontinput << 2 << endl;
+  /* input reaction Q value */		frontinput << Qval << endl;
+  /* no nonlocality in incident */	frontinput << 1 << endl;
+  /* spin, incident channel */		frontinput << Ji << endl;
+  /* use built-in potentials */		frontinput << 1 << endl;
+  /*** select deut potential ***/	frontinput << model_ADWA1 << endl;
+  if(model_ADWA1==6){
+  /*** select deut potential ***/	frontinput << model_ADWA2 << endl;
+  }
+  /* no nonlocality in outgoing */	frontinput << 1 << endl;
+  /* spin, outgoing channel */		frontinput << Jf << endl;
+  /* use built-in potentials */		frontinput << 1 << endl;
+  /*** select prot protential ***/	frontinput << model_out << endl;
+  /*** switch case is to keep second selection consistent with first ***/
+  switch(model_out){
+    case 1:
+      frontinput << 1 << endl;
+      break;
+    case 2:
+      frontinput << 2 << endl;
+      break;
+    case 3:
+      frontinput << 2 << endl;
+      break;
+    case 4:
+      frontinput << 2 << endl;
+      break;
+    case 5:
+      frontinput << 3 << endl;
+      break;
+    case 6:
+      frontinput << 4 << endl;
+      break;
+  }
+  /* default <p|d> vertex value */	frontinput << 1 << endl;
+  /* use that value */			frontinput << 1 << endl;
+  /* use zero range <d|p> vertex */	frontinput << 1 << endl;
+  /* default neutron binding potent. */	frontinput << "1.25 0.65" << endl;
+  /* default spin-orbit strengh */	frontinput << 6.0 << endl;
+  /* default bound st. non-locality */	frontinput << 0 << endl;
+  /* default bound st. s-o radius */	frontinput << 0 << endl;
+
+  // Close in.front file
+  frontinput.close();
+
+  // Execute front20
+  system("./front20 < in.front > /dev/null");
+
+  ifstream checkfront("tran.adwa");
+  if(!checkfront){
+    cout << "!!! ERROR !!! -> front20 failed" << endl;
+    return;
+  } else {
+    cout << "front20 execution complete" << endl;
+    checkfront.close();
+  }
+
+  // Move back out of subdirectory
+  system("pwd");  chdir("..");  system("pwd");
 
 }
 
-void InputBlock5_ADWA(string potFile){
+//void InputBlock5_ADWA(string potFile){
+void InputBlock5_ADWA(){
   
   // Run TWOFNR
-  ///// DO THIS!!!
-
-
-  pair<vector<double>,vector<double>> pairPot;
-  pairPot = ReadPotentialFromTWOFNRFile(potFile);
-
+//RunTWOFNR_dp(2.5,0);
+  RunTWOFNR_dp(2.5,2);
 
   // Read in the TWOFNR file to get real central and imaginary central
+  pair<vector<double>,vector<double>> pairPot;
+  pairPot = ReadPotentialFromTWOFNRFile("./adwa/tran.adwa");
+  
+  // Write to output file
   ofstream file;
   file.open(outputFile.c_str(),ios::app);
   file.setf(ios::fixed, ios::floatfield);
   file.precision(3);
-
   if(file.is_open()){
     // LINE 1
     file << setw(8) << (double) beamE*AB
@@ -470,25 +566,7 @@ void InputBlock5_ADWA(string potFile){
 
     // LINE X
     WritePotentialFromTWOFNRFile(pairPot.first, file);
-//    file << scientific;  file.precision(7);
-//    for(int r = 0; r<pairPot.first.size()/5; r++){
-//      if(loud){cout << r*5+0 << " " << r*5+1 << " " << r*5+2 << " " << r*5+3 << " " << r*5+4  << endl;}
-//      file << setw(16) << pairPot.first.at(r*5 + 0) 
-//           << setw(16) << pairPot.first.at(r*5 + 1) 
-//           << setw(16) << pairPot.first.at(r*5 + 2) 
-//           << setw(16) << pairPot.first.at(r*5 + 3) 
-//           << setw(16) << pairPot.first.at(r*5 + 4); 
-//      file << "\n"; 
-//    }
-//
-//    //cout << "REMAINDER: " <<  pairPot.first.size()%5 << endl;
-//    for(int r = pairPot.first.size()%5+1; r --> 1;){
-//      if(loud){cout << pairPot.first.size()-r  << " ";}
-//      file << setw(16) << pairPot.first.at(pairPot.first.size()-r); 
-//    } 
-//    file << "\n"; 
-//    if(loud){cout << endl;}
-    
+   
     //--------------------------------------------------------
     // Imaginary central potential ---------------------------
     file.setf(ios::fixed, ios::floatfield);
@@ -505,128 +583,6 @@ void InputBlock5_ADWA(string potFile){
 
     // LINE X
     WritePotentialFromTWOFNRFile(pairPot.second, file);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//    //cout << line << endl;
-//    //counter++;
-//	     
-//      file << scientific;
-//      file.precision(7);
-//
-////      if(line.length()<13){ break; }
-////      if(line.length()>13){ file << setw(16) << (double)  stod(line.substr( 0,14)) ;//<< "\n"; }// counter++;}
-////      if(line.length()>27){ file << setw(16) << (double)  stod(line.substr(14,14)) ;//<< "\n"; }// counter++;}
-////      if(line.length()>41){ file << setw(16) << (double)  stod(line.substr(28,14)) ;//<< "\n"; }// counter++;}
-////      if(line.length()>55){ file << setw(16) << (double)  stod(line.substr(42,14)) ;//<< "\n"; }// counter++;}
-////      if(line.length()>69){ file << setw(16) << (double)  stod(line.substr(56,14))    << "\n"; }// counter++;}
-//      
-//
-//      if(line.length()>14){ // Line has data
-//
-//	a = stod(line.substr( 0,14));
-//        b = stod(line.substr(14,14));
-//        c = stod(line.substr(28,14));
-//        if(line.length()>45){
-//          d = stod(line.substr(42,14));
-//          e = stod(line.substr(56,14));
-//        } else { d = 0; e = 0; }
-//        //cout << a << endl;
-//        //cout << b << endl;
-//        //cout << c << endl;
-//        //cout << d << endl;
-//        //cout << e << endl;
-//
-//        file << scientific;
-//        file.precision(7);
-//        file << setw(16) << (double) a  
-//             << setw(16) << (double) b 
-//             << setw(16) << (double) c 
-//             << setw(16) << (double) d 
-//             << setw(16) << (double) e ;
-//        file << "\n"; 
-//        }else{ // Line is interstitial! Stop reading
-//          //cout << "INTER!!! -------------" << endl;
-//          break;
-//        }
-//    }
-//
-//    //cout << "NOW MOTING TO IMATINARY CNETRAL..." << endl;
-//
-//    //--------------------------------------------------------
-//    // Imaginary central potential ---------------------------
-//    file.setf(ios::fixed, ios::floatfield);
-//    file.precision(3);
-//
-//    // LINE 1 
-//    file << setw(8) << (double) 8.0;
-//    file << "\n"; 
-//
-//    // LINE 2
-//    file << setw(8) << (double) 105.  //num angles to be read in
-//         << setw(8) << (double) 1.0;  // 0 = real, 1 = imag
-//    file << "\n"; 
-//
-//    // LINE X
-//    //interstitial = false;
-//
-//    // Read & write next chunk
-//    while(getline(infile,line)){
-//      //cout << line << endl;
-//      
-//      file << scientific;
-//      file.precision(7);
-//  
-//      //if(line.length()<13){ break; }
-//      //if(line.length()>13){ file << setw(16) << (double)  stod(line.substr( 0,14)) << "\n"; }
-//      //if(line.length()>27){ file << setw(16) << (double)  stod(line.substr(14,14)) << "\n"; }
-//      //if(line.length()>41){ file << setw(16) << (double)  stod(line.substr(28,14)) << "\n"; }
-//      //if(line.length()>55){ file << setw(16) << (double)  stod(line.substr(42,14)) << "\n"; }
-//      //if(line.length()>69){ file << setw(16) << (double)  stod(line.substr(56,14)) << "\n"; }
-//      
-//      if(line.length()>14){ // Line has data
-//        
-//        a = stod(line.substr( 0,14));
-//        b = stod(line.substr(14,14));
-//        c = stod(line.substr(28,14));
-//        if(line.length()>45){
-//          d = stod(line.substr(42,14));
-//          e = stod(line.substr(56,14));
-//        } else { d = 0; e = 0; }
-//        //cout << a << endl;
-//        //cout << b << endl;
-//        //cout << c << endl;
-//        //cout << d << endl;
-//        //cout << e << endl;
-//
-//
-//        file << scientific;
-//        file.precision(7);
-//        file << setw(16) << (double) a 
-//             << setw(16) << (double) b
-//             << setw(16) << (double) c
-//             << setw(16) << (double) d
-//             << setw(16) << (double) e;
-//        file << "\n"; 
-//      
-//      } else { // Line is interstitial! Stop reading
-//        //cout << "INTER!!! -------------" << endl;
-//        break;
-//      }
-//    }
 
     //----------------------------------------------------------
     // Real & imaginary spin-orbit potential -------------------
@@ -650,182 +606,6 @@ void InputBlock5_ADWA(string potFile){
   } else {
     cout << "ERROR! File not opened" << endl;
   } 
-
-
-
-
-
-
-
-
-
-
-//  if(file.is_open()){
-//    // LINE 1
-//    file << setw(8) << (double) beamE*AB
-//         << setw(8) << (double) AB
-//         << setw(8) << (double) ZB
-//         << setw(8) << (double) AT
-//         << setw(8) << (double) ZT
-//         << setw(8) << (double) rc0
-//         << setw(8) << (double) 0.0
-//         << setw(8) << (double) 0.0
-//         << setw(8) << (double) AB;  //TWICE SPIN OF DEUTERON! convenient for now
-//    file << "\n"; 
-//    
-//    //--------------------------------------------------------
-//    // Real central potential --------------------------------
-//    // LINE 1 
-//    file << setw(8) << (double) 8.0;
-//    file << "\n"; 
-//
-//    // LINE 2
-//    file << setw(8) << (double) 150.  //num radial points to be read in
-//         << setw(8) << (double) 0.0;  // 0 = real, 1 = imag
-//    file << "\n"; 
-//
-//    // LINE X
-//    string line;
-//    double a, b, c, d, e;
-//    //int interstitial = 0;
-//    //bool interstitial = false;
-//
-//    // Ignore TWOFNR preamble
-//    int limit = 16; //For (d,p), ignore first 16 lines
-//    for(int n=0; n<limit; n++){infile.ignore(500,'\n');}
-//
-//    int counter = 0;
-//    // Read & write next chunk
-//    while(getline(infile,line)){
-//      //cout << line << endl;
-//      counter++;
-//	     
-//      file << scientific;
-//      file.precision(7);
-//
-////      if(line.length()<13){ break; }
-////      if(line.length()>13){ file << setw(16) << (double)  stod(line.substr( 0,14)) ;//<< "\n"; }// counter++;}
-////      if(line.length()>27){ file << setw(16) << (double)  stod(line.substr(14,14)) ;//<< "\n"; }// counter++;}
-////      if(line.length()>41){ file << setw(16) << (double)  stod(line.substr(28,14)) ;//<< "\n"; }// counter++;}
-////      if(line.length()>55){ file << setw(16) << (double)  stod(line.substr(42,14)) ;//<< "\n"; }// counter++;}
-////      if(line.length()>69){ file << setw(16) << (double)  stod(line.substr(56,14))    << "\n"; }// counter++;}
-//      
-//
-//      if(line.length()>14){ // Line has data
-//
-//	a = stod(line.substr( 0,14));
-//        b = stod(line.substr(14,14));
-//        c = stod(line.substr(28,14));
-//        if(line.length()>45){
-//          d = stod(line.substr(42,14));
-//          e = stod(line.substr(56,14));
-//        } else { d = 0; e = 0; }
-//        //cout << a << endl;
-//        //cout << b << endl;
-//        //cout << c << endl;
-//        //cout << d << endl;
-//        //cout << e << endl;
-//
-//        file << scientific;
-//        file.precision(7);
-//        file << setw(16) << (double) a  
-//             << setw(16) << (double) b 
-//             << setw(16) << (double) c 
-//             << setw(16) << (double) d 
-//             << setw(16) << (double) e ;
-//        file << "\n"; 
-//        }else{ // Line is interstitial! Stop reading
-//          //cout << "INTER!!! -------------" << endl;
-//          break;
-//        }
-//    }
-//
-//    //cout << "NOW MOTING TO IMATINARY CNETRAL..." << endl;
-//
-//    //--------------------------------------------------------
-//    // Imaginary central potential ---------------------------
-//    file.setf(ios::fixed, ios::floatfield);
-//    file.precision(3);
-//
-//    // LINE 1 
-//    file << setw(8) << (double) 8.0;
-//    file << "\n"; 
-//
-//    // LINE 2
-//    file << setw(8) << (double) 105.  //num angles to be read in
-//         << setw(8) << (double) 1.0;  // 0 = real, 1 = imag
-//    file << "\n"; 
-//
-//    // LINE X
-//    //interstitial = false;
-//
-//    // Read & write next chunk
-//    while(getline(infile,line)){
-//      //cout << line << endl;
-//      
-//      file << scientific;
-//      file.precision(7);
-//  
-//      //if(line.length()<13){ break; }
-//      //if(line.length()>13){ file << setw(16) << (double)  stod(line.substr( 0,14)) << "\n"; }
-//      //if(line.length()>27){ file << setw(16) << (double)  stod(line.substr(14,14)) << "\n"; }
-//      //if(line.length()>41){ file << setw(16) << (double)  stod(line.substr(28,14)) << "\n"; }
-//      //if(line.length()>55){ file << setw(16) << (double)  stod(line.substr(42,14)) << "\n"; }
-//      //if(line.length()>69){ file << setw(16) << (double)  stod(line.substr(56,14)) << "\n"; }
-//      
-//      if(line.length()>14){ // Line has data
-//        
-//        a = stod(line.substr( 0,14));
-//        b = stod(line.substr(14,14));
-//        c = stod(line.substr(28,14));
-//        if(line.length()>45){
-//          d = stod(line.substr(42,14));
-//          e = stod(line.substr(56,14));
-//        } else { d = 0; e = 0; }
-//        //cout << a << endl;
-//        //cout << b << endl;
-//        //cout << c << endl;
-//        //cout << d << endl;
-//        //cout << e << endl;
-//
-//
-//        file << scientific;
-//        file.precision(7);
-//        file << setw(16) << (double) a 
-//             << setw(16) << (double) b
-//             << setw(16) << (double) c
-//             << setw(16) << (double) d
-//             << setw(16) << (double) e;
-//        file << "\n"; 
-//      
-//      } else { // Line is interstitial! Stop reading
-//        //cout << "INTER!!! -------------" << endl;
-//        break;
-//      }
-//    }
-//
-//    //----------------------------------------------------------
-//    // Real & imaginary spin-orbit potential -------------------
-//    file.setf(ios::fixed, ios::floatfield);
-//    file.precision(3);
-//  
-//    SelectProtonPotential(Pout, AT, ZT, 1);
-//    file << setw(8) << (double) -4.0
-//         << setw(8) << (double) vso
-//         << setw(8) << (double) rso0
-//         << setw(8) << (double) aso
-//         << setw(8) << (double) 0.0
-//         << setw(8) << (double) vsoi
-//         << setw(8) << (double) rsoi0
-//         << setw(8) << (double) asoi;
-//    file << "\n"; 
-//    // for some reason, this is not being correctrly read as the end of PARTICLE 1 input?
-//
-//    file.close(); 
-//    if(loud){cout << "Written Input Block 5 -- ADWA" << endl;}
-//  } else {
-//    cout << "ERROR! File not opened" << endl;
-//  } 
 
 }
 

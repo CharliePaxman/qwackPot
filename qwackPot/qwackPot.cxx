@@ -41,7 +41,7 @@ void qwackPot(){
     //SelectDeuteronPotential(Pin, AT, ZT, 1);
     //InputBlock5();
     //InputBlock5_ADWA("./adwa/tran.adwa");
-    InputBlock5_ADWA("./adwa/tran.adwaDEFAULT");
+    InputBlock5_ADWA();
 
     // Outgoing channel
     SelectProtonPotential(Pout, AH, ZH, 2);
