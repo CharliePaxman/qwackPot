@@ -402,6 +402,29 @@ pair<vector<double>,vector<double>> ReadPotentialFromTWOFNRFile(string potFile){
 
 }
 
+void WritePotentialFromTWOFNRFile(vector<double> potential, ofstream& file){
+  
+  file << scientific;  file.precision(7);
+  for(int r = 0; r<potential.size()/5; r++){
+    if(loud){cout << r*5+0 << " " << r*5+1 << " " << r*5+2 << " " << r*5+3 << " " << r*5+4  << endl;}
+    file << setw(16) << potential.at(r*5 + 0) 
+         << setw(16) << potential.at(r*5 + 1) 
+         << setw(16) << potential.at(r*5 + 2) 
+         << setw(16) << potential.at(r*5 + 3) 
+         << setw(16) << potential.at(r*5 + 4); 
+    file << "\n"; 
+  }
+
+  //cout << "REMAINDER: " <<  pairPot.first.size()%5 << endl;
+  for(int r = potential.size()%5+1; r --> 1;){
+    if(loud){cout << potential.size()-r  << " ";}
+    file << setw(16) << potential.at(potential.size()-r); 
+  } 
+  file << "\n"; 
+  if(loud){cout << endl;}
+
+}
+
 void InputBlock5_ADWA(string potFile){
   
   // Run TWOFNR
@@ -433,6 +456,9 @@ void InputBlock5_ADWA(string potFile){
     
     //--------------------------------------------------------
     // Real central potential --------------------------------
+    file.setf(ios::fixed, ios::floatfield);
+    file.precision(3);
+    
     // LINE 1 
     file << setw(8) << (double) 8.0;
     file << "\n"; 
@@ -443,25 +469,42 @@ void InputBlock5_ADWA(string potFile){
     file << "\n"; 
 
     // LINE X
-    file << scientific;  file.precision(7);
-    for(int r = 0; r<pairPot.first.size()/5; r++){
-      if(loud){cout << r*5+0 << " " << r*5+1 << " " << r*5+2 << " " << r*5+3 << " " << r*5+4  << endl;}
-      file << setw(16) << pairPot.first.at(r*5 + 0) 
-           << setw(16) << pairPot.first.at(r*5 + 1) 
-           << setw(16) << pairPot.first.at(r*5 + 2) 
-           << setw(16) << pairPot.first.at(r*5 + 3) 
-           << setw(16) << pairPot.first.at(r*5 + 4); 
-      file << "\n"; 
-    }
-
-    //cout << "REMAINDER: " <<  pairPot.first.size()%5 << endl;
-    for(int r = pairPot.first.size()%5+1; r --> 1;){
-      if(loud){cout << pairPot.first.size()-r  << " ";}
-      file << setw(16) << pairPot.first.at(pairPot.first.size()-r); 
-    } 
-    file << "\n"; 
-    if(loud){cout << endl;}
+    WritePotentialFromTWOFNRFile(pairPot.first, file);
+//    file << scientific;  file.precision(7);
+//    for(int r = 0; r<pairPot.first.size()/5; r++){
+//      if(loud){cout << r*5+0 << " " << r*5+1 << " " << r*5+2 << " " << r*5+3 << " " << r*5+4  << endl;}
+//      file << setw(16) << pairPot.first.at(r*5 + 0) 
+//           << setw(16) << pairPot.first.at(r*5 + 1) 
+//           << setw(16) << pairPot.first.at(r*5 + 2) 
+//           << setw(16) << pairPot.first.at(r*5 + 3) 
+//           << setw(16) << pairPot.first.at(r*5 + 4); 
+//      file << "\n"; 
+//    }
+//
+//    //cout << "REMAINDER: " <<  pairPot.first.size()%5 << endl;
+//    for(int r = pairPot.first.size()%5+1; r --> 1;){
+//      if(loud){cout << pairPot.first.size()-r  << " ";}
+//      file << setw(16) << pairPot.first.at(pairPot.first.size()-r); 
+//    } 
+//    file << "\n"; 
+//    if(loud){cout << endl;}
     
+    //--------------------------------------------------------
+    // Imaginary central potential ---------------------------
+    file.setf(ios::fixed, ios::floatfield);
+    file.precision(3);
+
+    // LINE 1 
+    file << setw(8) << (double) 8.0;
+    file << "\n"; 
+
+    // LINE 2
+    file << setw(8) << (double) pairPot.second.size()  //num angles to be read in
+         << setw(8) << (double) 1.0;  // 0 = real, 1 = imag
+    file << "\n"; 
+
+    // LINE X
+    WritePotentialFromTWOFNRFile(pairPot.second, file);
 
 
 
