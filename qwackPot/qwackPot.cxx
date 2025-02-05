@@ -33,15 +33,15 @@ void qwackPot(){
     InputBlock1();
     InputBlock2(0.0, 1.0, 181.0); //InputBlock2(0.0, 0.5, 360.0); // twofnr max num angles is 181
     InputBlock3(15, 1);
-    //InputBlock4(0.1, 0.0, 50.);
     InputBlock4(0.1, 0.0, 30.3);
-    //InputBlock4(0.1, 0.0, 26.3);
   
     // Incoming channel
-    //SelectDeuteronPotential(Pin, AT, ZT, 1);
-    //InputBlock5();
-    //InputBlock5_ADWA("./adwa/tran.adwa");
-    InputBlock5_ADWA();
+    if(Pin=="ADWA"){
+      InputBlock5_ADWA();
+    } else {
+      SelectDeuteronPotential(Pin, AT, ZT, 1);
+      InputBlock5();
+    }
 
     // Outgoing channel
     SelectProtonPotential(Pout, AH, ZH, 2);

@@ -38,6 +38,7 @@ double Sep;   // Relevant separation energy of final nucleus
 double beamE; // Incoming beam energy [MeV/u]
 double Ex;    // Heavy excitation energy [MeV]
 int n, l, doubJ;
+int doubInJ, doubOutJ;
 
 //-------------------------------//
 
@@ -83,6 +84,12 @@ void ConstructOutputCards(){
     outputName.append(to_string(n)); outputName.append("-");
     outputName.append(to_string(l)); outputName.append("-");
     outputName.append(to_string(doubJ)); 
+  outputName.append("_");
+    outputName.append("i2j-");
+    outputName.append(to_string(doubInJ)); 
+  outputName.append("_");
+    outputName.append("o2j-");
+    outputName.append(to_string(doubOutJ)); 
   outputName.append(".txt");
 
   outputFile.append(outputPath);
@@ -144,7 +151,7 @@ void LoadGlobalVariables_Specific(int iter){
     for(int i=0;  i<iter; i++){
       file.ignore(80,'\n');
     }
-    file >> Ex >> n >> l >> doubJ >> Pin >> Pout;
+    file >> Ex >> n >> l >> doubJ >> Pin >> Pout >> doubInJ >> doubOutJ;
   }
 
   // Define output file name for these specific variables
@@ -428,7 +435,8 @@ void RunTWOFNR_dp(double Ji, double Jf){
   cout << "           BEGINING FRONT20 AUTOMATED PROCESS           " << endl;
   cout << "========================================================" << endl;
   
-  int model_ADWA1 = 6; //JTandy (for now...)
+  int model_ADWA1 = 5; //JSoper
+//int model_ADWA1 = 6; //JTandy (for now...)
   int model_ADWA2 = 1; //Reid soft core (for now...)
 //int model_out   = 1; //BechettiGreenlees 
   int model_out   = 2; //ChapelHill 
@@ -521,12 +529,11 @@ void RunTWOFNR_dp(double Ji, double Jf){
 
 }
 
-//void InputBlock5_ADWA(string potFile){
 void InputBlock5_ADWA(){
   
   // Run TWOFNR
-//RunTWOFNR_dp(2.5,0);
-  RunTWOFNR_dp(2.5,2);
+  cout << "   !!!!! SPINS HERE:::::  ->>> " << ((double)doubInJ/2.0) << "    " << ((double)doubOutJ/2.0) << endl;
+  RunTWOFNR_dp( ((double)doubInJ/2.0) , ((double)doubOutJ/2.0) );
 
   // Read in the TWOFNR file to get real central and imaginary central
   pair<vector<double>,vector<double>> pairPot;
@@ -590,12 +597,13 @@ void InputBlock5_ADWA(){
     file.precision(3);
   
     SelectProtonPotential(Pout, AT, ZT, 1);
+    //SelectProtonPotential(Pout, AH, ZH, 1);
     file << setw(8) << (double) -4.0
-         << setw(8) << (double) vso
+         << setw(8) << (double) vso    
          << setw(8) << (double) rso0
          << setw(8) << (double) aso
          << setw(8) << (double) 0.0
-         << setw(8) << (double) vsoi
+         << setw(8) << (double) vsoi   
          << setw(8) << (double) rsoi0
          << setw(8) << (double) asoi;
     file << "\n"; 
