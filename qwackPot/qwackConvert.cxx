@@ -72,11 +72,11 @@ int main ( int n_args, const char** args ){
   // Output_Unprocessed -> Output_Processed
   procfile.replace(7,3,"P");
 
-  // ... .txt -> ..._2Ji-#_2Jo-#_2Jt#.txt
-  string insertme = "_2Ji-" + to_string(initDoubJ ) 
-	          + "_2Jo-" + to_string(finalDoubJ)
-	          + "_2Jt-" + to_string(tranDoubJ );
-  procfile.insert(procfile.length()-4,insertme);
+  //// ... .txt -> ..._2Ji-#_2Jo-#_2Jt#.txt
+  //string insertme = "_2Ji-" + to_string(initDoubJ ) 
+  //                + "_2Jo-" + to_string(finalDoubJ)
+  //                + "_2Jt-" + to_string(tranDoubJ );
+  //procfile.insert(procfile.length()-4,insertme);
 
   // Write to file
   ofstream outfile(procfile.c_str(),ios::out); //overwrite
