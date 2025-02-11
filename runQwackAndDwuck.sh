@@ -36,16 +36,16 @@ D20="1.5"
 #   in order to calculate many input cards at once
 
 # Define the energies of the states to model (in MeV)
-#stateArr=("0.000" "1.675" "3.572" "4.071" "4.456" "5.004" "5.228" "5.629" "7.252" "7.622" "7.855" "8.313" "8.561")
+ stateArr=("0.000" "1.675" "3.572" "4.071" "4.456" "5.004" "5.228" "5.629" "7.252" "7.622" "7.855" "8.313" "8.561")
 #stateArr=("0.000" "1.000" "2.000" "3.000" "4.000" "5.000" "6.000" "7.000" "8.000" "9.000")
-stateArr=("0.000" ) #"1.21" "4.77" "6.17")
+#stateArr=("0.000" "2.000" "4.000" "6.000" "8.000" "10.000")
 
 # Define the n, l, and 2*j quantum numbers of the transfered nucleon
 #    Note that the input is weird here! Need to add each orbital 
 #    as the same index of each of the three arrays... sorry...
-nArr=(    "0" ) #"1" ) #"0" "0"  "0") #"1" ) #"0" "1" "0")
-lArr=(    "2" ) #"0" ) #"2" "3"  "3") #"0" ) #"3" "1" "4")
-doubJArr=("5" ) #"1" ) #"3" "7"  "5") #"1" ) #"7" "3" "9")
+nArr=(    "0" "1" ) #"0" "0"  "0") #"1" ) #"0" "1" "0")
+lArr=(    "2" "0" ) #"2" "3"  "3") #"0" ) #"3" "1" "4")
+doubJArr=("5" "1" ) #"3" "7"  "5") #"1" ) #"7" "3" "9")
 
 
 # Double spin of initial target state (all possible)
@@ -83,10 +83,12 @@ initialDoubJ=("5")
 
 
 # Define the input and output potentials to use
-inputPotArr=(  "ADWA" ) #"AC" )
-outputPotArr=( "CH"   ) #"KD" )
-#inputPotArr=("HSS" "AC" "Bo" "DCV" "LH" "PP")
-#outputPotArr=("KD" "CH" "Mt" "BG" "P")
+inputPotArr=(  "ADWA" )
+outputPotArr=( "CH" )
+#inputPotArr=(  "ADWA" "AC" )
+#outputPotArr=( "CH"   "KD" )
+#inputPotArr=( "ADWA" "HSS" ) #"AC" "Bo" "DCV" ) #"LH" ) #"PP")
+#outputPotArr=( "CH" "KD" "P" ) #"CH" "Mt" "BG")
 
 
 
@@ -189,18 +191,43 @@ while IFS= read -r line; do
   # Compile qwackConvert
   g++ -o qwackPot/qwackConvert qwackPot/qwackConvert.cxx
 
-#  { read 
-#    read
-#    while IFS="," read -r angle cos sigma pol asy Dnn Knn Inn; do
-      for inJ in ${initialDoubJ[@]}; do
-        for outJ in ${finalDoubJ[@]}; do
-          for tranJ in ${doubJArr[@]}; do
-            ./qwackPot/qwackConvert $unprocessedfile $inJ $outJ $tranJ $D20
-          done
-        done
+##  { read 
+##    read
+##    while IFS="," read -r angle cos sigma pol asy Dnn Knn Inn; do
+#      for inJ in ${initialDoubJ[@]}; do
+#        for outJ in ${finalDoubJ[@]}; do
+#          for tranJ in ${doubJArr[@]}; do
+#            ./qwackPot/qwackConvert $unprocessedfile $inJ $outJ $tranJ $D20
+#          done
+#        done
+#      done
+##    done
+##  } < $unprocessedfile
+
+
+  for ((i=0;i<${#nArr[@]};i++)); do
+    for iJ in ${initialDoubJ[@]}; do
+      #=============================
+      declare -A finalDoubJ; 
+      for ((oJ=$(($iJ-${doubJArr[$i]})); oJ<=$(($iJ+${doubJArr[$i]})); oJ++)); do
+        if [ $(($iJ%2)) -eq 0 ]; then # ------------------------ in 2*J is even
+          if [ $(($oJ%2)) -eq 1 ]; then # -- -- -- -- out 2*J is odd
+            ./qwackPot/qwackConvert $unprocessedfile $iJ $oJ ${doubJArr[$i]} $D20
+          fi
+        else #-------------------------------------------------- in 2*J is odd
+          if [ $(($oJ%2)) -eq 0 ]; then # -- -- -- -- out 2*J is even
+            ./qwackPot/qwackConvert $unprocessedfile $iJ $oJ ${doubJArr[$i]} $D20
+          fi
+        fi
       done
-#    done
-#  } < $unprocessedfile
+      #=============================
+    done
+  done
+
+
+
+
+
 
 
 

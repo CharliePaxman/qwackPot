@@ -17,6 +17,10 @@ void qwackPot(){
   ClearGlobalVariables_General();
   LoadGlobalVariables_General();
 
+  maxRad = 50.0;
+  stepRad = 0.1;
+  npartWav = 15;
+
   // Count number of inputs in specific inputs file
   int nlines = 0;
   ifstream specFile("Input_Specific.txt"); string line;
@@ -32,8 +36,8 @@ void qwackPot(){
     // 'Preamble' blocks 
     InputBlock1();
     InputBlock2(0.0, 1.0, 181.0); //InputBlock2(0.0, 0.5, 360.0); // twofnr max num angles is 181
-    InputBlock3(15, 1);
-    InputBlock4(0.1, 0.0, 30.3);
+    InputBlock3(npartWav, 1);
+    InputBlock4(stepRad, 0.0, maxRad);
   
     // Incoming channel
     if(Pin=="ADWA"){

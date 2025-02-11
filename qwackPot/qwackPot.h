@@ -50,6 +50,12 @@ string Pout;
 
 //-------------------------------//
 
+double maxRad = -1000.;
+double stepRad = -1000.;
+int npartWav = -1000;
+
+//-------------------------------//
+
 void ConstructOutputCards(){
   stringstream ss;
   outputPath.clear();
@@ -409,22 +415,23 @@ pair<vector<double>,vector<double>> ReadPotentialFromTWOFNRFile(string potFile){
 
 }
 
-void WritePotentialFromTWOFNRFile(vector<double> potential, ofstream& file){
+//void WritePotentialFromTWOFNRFile(vector<double> potential, ofstream& file){
+void WritePotentialFromTWOFNRFile(vector<double> potential, ofstream& file, double scale){
   file << scientific;  file.precision(7);
   
   for(int r = 0; r<potential.size()/5; r++){
     if(loud){cout << r*5+0 << " " << r*5+1 << " " << r*5+2 << " " << r*5+3 << " " << r*5+4  << endl;}
-    file << setw(16) << potential.at(r*5 + 0) 
-         << setw(16) << potential.at(r*5 + 1) 
-         << setw(16) << potential.at(r*5 + 2) 
-         << setw(16) << potential.at(r*5 + 3) 
-         << setw(16) << potential.at(r*5 + 4); 
+    file << setw(16) << potential.at(r*5 + 0)            * scale 
+         << setw(16) << potential.at(r*5 + 1)            * scale 
+         << setw(16) << potential.at(r*5 + 2)            * scale 
+         << setw(16) << potential.at(r*5 + 3)            * scale 
+         << setw(16) << potential.at(r*5 + 4)            * scale; 
     file << "\n"; 
   }
 
   for(int r = potential.size()%5+1; r --> 1;){
     if(loud){cout << potential.size()-r  << " ";}
-    file << setw(16) << potential.at(potential.size()-r); 
+    file << setw(16) << potential.at(potential.size()-r) * scale; 
   } 
 
   file << "\n"; if(loud){cout << endl;}
@@ -449,6 +456,7 @@ void RunTWOFNR_dp(double Ji, double Jf){
 
   // Move to subdirectory, in order for the output files of TWOFNR to be in a reasonablem place
   system("pwd");  chdir("./adwa/");  system("pwd");
+  //system("pwd");  chdir("./adwa15/");  system("pwd");
 
   // Delete existing tran.adwa file
   remove("tran.adwa");
@@ -458,12 +466,16 @@ void RunTWOFNR_dp(double Ji, double Jf){
   /* name */ 				frontinput << "adwa" << endl;
   /* label */				frontinput << "adwa automated" << endl;
   /* reaction - here (d,p) */		frontinput << 2 << endl;
-  /* calcualte entrance DW */		frontinput << 0 << endl;
-  /* calcualte exit DW */		frontinput << 0 << endl;
+  /* calcualte entrance DW */		frontinput << 3 << endl;  //0 << endl;
+  /* calcualte exit DW */		frontinput << 3 << endl;  //0 << endl;
   /* beam energy per nucleon */		frontinput << beamE << endl;
   /* beam A, Z */			frontinput << AT << " " << ZT << endl;
-  /* default integration range */ 	frontinput << 1 << endl;
-  /* default number of partial waves */	frontinput << 1 << endl;
+  	/* default integration range */ 	//frontinput << 1 << endl;
+  /* define integration range */ 	frontinput << 2 << endl;
+                                        frontinput << maxRad << " " << stepRad << endl;
+  	/* default number of partial waves */	//frontinput << 1 << endl;
+  /* define number of partial waves */	frontinput << 2 << endl;
+                                      	frontinput << npartWav << endl;
   /* default c.o.m steps */		frontinput << "0 0 0" << endl;
   /* L and J of transfered nucleon */	frontinput << l << " " << (double)doubJ/2. << endl;
   /* nodes in function (0s,0p,1s...)*/	frontinput << n << endl;
@@ -514,6 +526,7 @@ void RunTWOFNR_dp(double Ji, double Jf){
 
   // Execute front20
   system("./front20 < in.front > /dev/null");
+  //system("./front15 < in.front > /dev/null");
 
   ifstream checkfront("tran.adwa");
   if(!checkfront){
@@ -563,7 +576,14 @@ void InputBlock5_ADWA(){
     file.precision(3);
     
     // LINE 1 
-    file << setw(8) << (double) 8.0;
+    file << setw(8) << (double)  8.0
+         << setw(8) << (double) -1.0 // Scale by -1  
+         << setw(8) << (double)    0  
+         << setw(8) << (double)    0  
+         << setw(8) << (double)    0  
+         << setw(8) << (double)  1.0 // Don't scale yet 
+         << setw(8) << (double)    0  
+         << setw(8) << (double)    0;  
     file << "\n"; 
 
     // LINE 2
@@ -572,7 +592,7 @@ void InputBlock5_ADWA(){
     file << "\n"; 
 
     // LINE X
-    WritePotentialFromTWOFNRFile(pairPot.first, file);
+    WritePotentialFromTWOFNRFile(pairPot.first, file, 1.0);
    
     //--------------------------------------------------------
     // Imaginary central potential ---------------------------
@@ -580,8 +600,15 @@ void InputBlock5_ADWA(){
     file.precision(3);
 
     // LINE 1 
-    file << setw(8) << (double) 8.0;
-    file << "\n"; 
+    file << setw(8) << (double)  8.0
+         << setw(8) << (double)  1.0 // Don't scale  
+         << setw(8) << (double)    0  
+         << setw(8) << (double)    0  
+         << setw(8) << (double)    0  
+         << setw(8) << (double) -1.0 // Slace by -1
+         << setw(8) << (double)    0  
+         << setw(8) << (double)    0;  
+   file << "\n"; 
 
     // LINE 2
     file << setw(8) << (double) pairPot.second.size()  //num angles to be read in
@@ -589,7 +616,7 @@ void InputBlock5_ADWA(){
     file << "\n"; 
 
     // LINE X
-    WritePotentialFromTWOFNRFile(pairPot.second, file);
+    WritePotentialFromTWOFNRFile(pairPot.second, file, 1.0);
 
     //----------------------------------------------------------
     // Real & imaginary spin-orbit potential -------------------
