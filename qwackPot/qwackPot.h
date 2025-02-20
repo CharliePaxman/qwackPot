@@ -8,11 +8,9 @@
 
 using namespace std;
 
-// ========================
+//===============================//
 // Define global variables
 // Recall this is in normal kinematics!
-//   examples given for 40Ca(d,p)41Ca reaction
-
 //-------------------------------//
 
 // Target (i.e. 40Ca)
@@ -54,7 +52,7 @@ double maxRad = -1000.;
 double stepRad = -1000.;
 int npartWav = -1000;
 
-//-------------------------------//
+//===============================//
 
 void ConstructOutputCards(){
   stringstream ss;
@@ -186,7 +184,7 @@ void SelectDeuteronPotential(string label, int Ax, int Zx, int InOut){
   else if (label=="DCV"){   x = deut_DCV1980(Ax, Zx, energy); } 
   else if (label=="LH" ){   x = deut_LH1974 (Ax, Zx, energy); }
   else if (label=="PP" ){   x = deut_PP1963 (Ax, Zx, energy); }
-  else if (label=="ADWA" ){ x = adwa_CH1991 (Ax, Zx, energy); }
+  //else if (label=="ADWA" ){ x = adwa_CH1991 (Ax, Zx, energy); }
 
   if(!x){cout << " FAILED TO SET INCOMING PARAMETERS" << endl;}
 }
@@ -415,7 +413,6 @@ pair<vector<double>,vector<double>> ReadPotentialFromTWOFNRFile(string potFile){
 
 }
 
-//void WritePotentialFromTWOFNRFile(vector<double> potential, ofstream& file){
 void WritePotentialFromTWOFNRFile(vector<double> potential, ofstream& file, double scale){
   file << scientific;  file.precision(7);
   
@@ -442,15 +439,23 @@ void RunTWOFNR_dp(double Ji, double Jf){
   cout << "           BEGINING FRONT20 AUTOMATED PROCESS           " << endl;
   cout << "========================================================" << endl;
   
-  int model_ADWA1 = 5; //JSoper
-//int model_ADWA1 = 6; //JTandy (for now...)
+//int model_ADWA1 = 5; //JSoper
+  int model_ADWA1 = 6; //JTandy (for now...)
   int model_ADWA2 = 1; //Reid soft core (for now...)
-//int model_out   = 1; //BechettiGreenlees 
-  int model_out   = 2; //ChapelHill 
-//int model_out   = 3; //Menet 
-//int model_out   = 4; //Perey 
-//int model_out   = 5; //JLM
-//int model_out   = 6; //KoningDelaroche 
+  int model_out; 
+
+       if(Pout=="KD"){ model_out   = 6; } // KoningDelaroche
+  else if(Pout=="BG"){ model_out   = 1; } // BechettiGreenlees
+  else               { model_out   = 2; } // Default to ChapelHill
+					  
+
+
+  double stateQval;
+  if(Ex<Sep){ // bound, calculate as normal
+    stateQval = Qval - Ex;
+  } else {   // unbound, use WBNA -- see Sen et al. (1974) doi: 10.1016/0375-9474(74)90110-9
+    stateQval = Qval - (Sep - 0.01);
+  }
 
   string njjj;
 
@@ -480,7 +485,7 @@ void RunTWOFNR_dp(double Ji, double Jf){
   /* L and J of transfered nucleon */	frontinput << l << " " << (double)doubJ/2. << endl;
   /* nodes in function (0s,0p,1s...)*/	frontinput << n << endl;
   /* calc using reaction Q value */	frontinput << 2 << endl;
-  /* input reaction Q value */		frontinput << Qval << endl;
+  /* input reaction Q value */		frontinput << stateQval << endl;
   /* no nonlocality in incident */	frontinput << 1 << endl;
   /* spin, incident channel */		frontinput << Ji << endl;
   /* use built-in potentials */		frontinput << 1 << endl;
@@ -499,15 +504,6 @@ void RunTWOFNR_dp(double Ji, double Jf){
       break;
     case 2:
       frontinput << 2 << endl;
-      break;
-    case 3:
-      frontinput << 2 << endl;
-      break;
-    case 4:
-      frontinput << 2 << endl;
-      break;
-    case 5:
-      frontinput << 3 << endl;
       break;
     case 6:
       frontinput << 4 << endl;

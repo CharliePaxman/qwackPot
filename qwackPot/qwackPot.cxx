@@ -10,8 +10,8 @@ void qwackPot(){
   cout << "========== STARTING QWACKPOT ==========" << endl;
   cout << "... CURRENTLY ONLY WORKING FOR (d,p) REACTIONS! ..." << endl;
 
-  //loud=false;
-  loud=true;
+  loud=false;
+  //loud=true;
 
   // General inputs (i.e. experiment information)
   ClearGlobalVariables_General();
@@ -35,7 +35,7 @@ void qwackPot(){
 
     // 'Preamble' blocks 
     InputBlock1();
-    InputBlock2(0.0, 1.0, 181.0); //InputBlock2(0.0, 0.5, 360.0); // twofnr max num angles is 181
+    InputBlock2(0.0, 1.0, 181.0);
     InputBlock3(npartWav, 1);
     InputBlock4(stepRad, 0.0, maxRad);
   

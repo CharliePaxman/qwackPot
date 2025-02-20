@@ -11,18 +11,14 @@
 #   calcualtion performed in this bash script run
 
 # Define the reaction
-AT=19; ZT=8; #Target
-#AT=20; ZT=8; #Target
+AT=20; ZT=8; #Target
 AB=2;  ZB=1; #Beam
 AL=1;  ZL=1; #Light
 
 # Define energies of the reaction
-Qval=5.383; #Q-value of the reaction
-Ebm=7.99;   #Energy of the beam (in MeV/u)
-Sep=7.608;  #Separation energy of transfered nucleon
-#Qval=1.581; #Q-value of the reaction
-#Ebm=10.5;   #Energy of the beam (in MeV/u)
-#Sep=3.81;  #Separation energy of transfered nucleon
+Qval=1.581; #Q-value of the reaction
+Ebm=10.5;   #Energy of the beam (in MeV/u)
+Sep=3.81;  #Separation energy of transfered nucleon
 
 
 
@@ -36,63 +32,22 @@ D20="1.5"
 #   in order to calculate many input cards at once
 
 # Define the energies of the states to model (in MeV)
- stateArr=("0.000" "1.675" "3.572" "4.071" "4.456" "5.004" "5.228" "5.629" "7.252" "7.622" "7.855" "8.313" "8.561")
-#stateArr=("0.000" "1.000" "2.000" "3.000" "4.000" "5.000" "6.000" "7.000" "8.000" "9.000")
-#stateArr=("0.000" "2.000" "4.000" "6.000" "8.000" "10.000")
+ stateArr=("0.000" "1.213" "4.770" "6.170")
 
 # Define the n, l, and 2*j quantum numbers of the transfered nucleon
 #    Note that the input is weird here! Need to add each orbital 
 #    as the same index of each of the three arrays... sorry...
-nArr=(    "0" "1" ) #"0" "0"  "0") #"1" ) #"0" "1" "0")
-lArr=(    "2" "0" ) #"2" "3"  "3") #"0" ) #"3" "1" "4")
-doubJArr=("5" "1" ) #"3" "7"  "5") #"1" ) #"7" "3" "9")
+nArr=(    "0" "0" "1" )
+lArr=(    "2" "2" "0" )
+doubJArr=("3" "5" "1" )
 
 
 # Double spin of initial target state (all possible)
-initialDoubJ=("5") 
-#initialDoubJ=("0") 
-
-# Double spin of final target state (all possible)
-#    Note that if the initial 2*J is even, then,
-#    the final 2*J must be odd, and vice versa
-#            !!!! THIS IS TRUE !!!!
-#          !!!! FOR DP TRANSFER !!!!
-#declare -A finalDoubJ; 
-#for iJ in ${initialDoubJ[@]}; do
-#  for tJ in ${doubJArr[@]}; do
-#    echo " initial double J = ""$iJ"", transfered dobule J = ""$tJ"
-#    for ((oJ=$(($iJ-$tJ)); oJ<=$(($iJ+$tJ)); oJ++)); do
-#      if [ $(($iJ%2)) -eq 0 ]; then #---  in 2*J is even
-#        if [ $(($oJ%2)) -eq 1 ]; then # -- -- -- out 2*J is odd
-#          echo " in even, out odd -> ""$oJ"
-#          finalDoubJ+=" ""$oJ";
-#	fi
-#      else #----------------------------  in 2*J is odd
-#        if [ $(($oJ%2)) -eq 0 ]; then # -- -- -- out 2*J is even
-#          echo " in odd, out even -> ""$oJ"
-#          finalDoubJ+=" ""$oJ";
-#	fi
-#      fi
-#    done
-#  done
-#done
-##finalDoubJ=("2" ) #"2" "4" "6" "8" "10" "12")
-
-
-
-
+initialDoubJ=("0") 
 
 # Define the input and output potentials to use
-inputPotArr=(  "ADWA" )
-outputPotArr=( "CH" )
-#inputPotArr=(  "ADWA" "AC" )
-#outputPotArr=( "CH"   "KD" )
-#inputPotArr=( "ADWA" "HSS" ) #"AC" "Bo" "DCV" ) #"LH" ) #"PP")
-#outputPotArr=( "CH" "KD" "P" ) #"CH" "Mt" "BG")
-
-
-
-
+inputPotArr=(  "ADWA" "HSS" )
+outputPotArr=( "CH" "BG" "KD")
 
 #=====================================================
 ############# GENERATING QWACKPOT FILES ##############
@@ -179,10 +134,10 @@ rm 'fort.7'
 echo "================= END ================="
 echo "======================================="
 
-#=====================================================
-########## CONVERT DWUCK4 OUTPUT TO mb/sr ############
-echo "========== CONVERTING FORMAT =========="
-
+##=====================================================
+########### CONVERT DWUCK4 OUTPUT TO mb/sr ############
+#echo "========== CONVERTING FORMAT =========="
+#
 # ----------------------------------------------------
 # Loop over unprocessed output files -----------------
 while IFS= read -r line; do
@@ -190,20 +145,6 @@ while IFS= read -r line; do
  
   # Compile qwackConvert
   g++ -o qwackPot/qwackConvert qwackPot/qwackConvert.cxx
-
-##  { read 
-##    read
-##    while IFS="," read -r angle cos sigma pol asy Dnn Knn Inn; do
-#      for inJ in ${initialDoubJ[@]}; do
-#        for outJ in ${finalDoubJ[@]}; do
-#          for tranJ in ${doubJArr[@]}; do
-#            ./qwackPot/qwackConvert $unprocessedfile $inJ $outJ $tranJ $D20
-#          done
-#        done
-#      done
-##    done
-##  } < $unprocessedfile
-
 
   for ((i=0;i<${#nArr[@]};i++)); do
     for iJ in ${initialDoubJ[@]}; do
@@ -223,14 +164,6 @@ while IFS= read -r line; do
       #=============================
     done
   done
-
-
-
-
-
-
-
-
 done < "qwackPot/ListOfOutputFiles.txt"
 
 echo "================= END ================="
