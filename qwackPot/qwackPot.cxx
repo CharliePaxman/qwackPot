@@ -11,10 +11,15 @@ void qwackPot(){
   cout << "... CURRENTLY ONLY WORKING FOR (d,p) REACTIONS! ..." << endl;
 
   loud=false;
+  //loud=true;
 
   // General inputs (i.e. experiment information)
   ClearGlobalVariables_General();
   LoadGlobalVariables_General();
+
+  maxRad = 50.0;
+  stepRad = 0.1;
+  npartWav = 15;
 
   // Count number of inputs in specific inputs file
   int nlines = 0;
@@ -30,16 +35,20 @@ void qwackPot(){
 
     // 'Preamble' blocks 
     InputBlock1();
-    InputBlock2(0.0, 0.5, 360.0);
-    InputBlock3(15, 1);
-    InputBlock4(0.1, 0.0, 50.);
+    InputBlock2(0.0, 1.0, 181.0);
+    InputBlock3(npartWav, 1);
+    InputBlock4(stepRad, 0.0, maxRad);
   
     // Incoming channel
-    SelectIncomingPotential(Pin);
-    InputBlock5();
-  
+    if(Pin=="ADWA"){
+      InputBlock5_ADWA();
+    } else {
+      SelectDeuteronPotential(Pin, AT, ZT, 1);
+      InputBlock5();
+    }
+
     // Outgoing channel
-    SelectOutgoingPotential(Pout);
+    SelectProtonPotential(Pout, AH, ZH, 2);
     InputBlock6();
   
     // Radial form factor for transfer

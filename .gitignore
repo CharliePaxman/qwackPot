@@ -10,6 +10,18 @@ qwackPot/Input_Specific.txt
 DWUCK4.exe
 build
 
+# ignore TWOFNR output files
+qwackPot/adwa/20.*
+qwackPot/adwa/21.*
+qwackPot/adwa/22.*
+qwackPot/adwa/23.*
+qwackPot/adwa/24.*
+qwackPot/adwa/folded.*
+qwackPot/adwa/in.*
+qwackPot/adwa/smat_ex.*
+qwackPot/adwa/smat_in.*
+qwackPot/adwa/tran.*
+
 # ignore gnuplot plotting functons
 *.gnuplot
 *.png
