@@ -405,9 +405,10 @@ pair<vector<double>,vector<double>> ReadPotentialFromTWOFNRFile(string potFile){
   returnMe.second = imag;
 
 
-  cout << " !!!!!!!! ------------>> " << real.size() << "    " << imag.size() << endl;
-
-  for (int i = 0; i<real.size(); i++){ cout << real.at(i) << " " << imag.at(i) << endl;}
+  if(loud){
+    cout << " !!!!!!!! ------------>> " << real.size() << "    " << imag.size() << endl;
+    for (int i = 0; i<real.size(); i++){ cout << real.at(i) << " " << imag.at(i) << endl;}
+  }
 
   return returnMe;
 
@@ -541,7 +542,11 @@ void RunTWOFNR_dp(double Ji, double Jf){
 void InputBlock5_ADWA(){
   
   // Run TWOFNR
-  cout << "   !!!!! SPINS HERE:::::  ->>> " << ((double)doubInJ/2.0) << "    " << ((double)doubOutJ/2.0) << endl;
+  if(loud){
+    cout << "   !!!!! SPINS HERE:::::  ->>> " << ((double)doubInJ/2.0) 
+	 << "    " << ((double)doubOutJ/2.0) << endl;
+  }
+
   RunTWOFNR_dp( ((double)doubInJ/2.0) , ((double)doubOutJ/2.0) );
 
   // Read in the TWOFNR file to get real central and imaginary central
@@ -637,7 +642,6 @@ void InputBlock5_ADWA(){
   } else {
     cout << "ERROR! File not opened" << endl;
   } 
-
 }
 
 void InputBlock6(){

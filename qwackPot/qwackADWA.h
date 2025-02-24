@@ -97,11 +97,5 @@ void TWOFNRforDWUCK_dp(double Ex, double Jf, double particleN, double particleL,
     checkfront.close();
   }
 
-
-
 }
-
-
-
-
 
