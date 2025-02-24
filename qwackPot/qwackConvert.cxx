@@ -11,16 +11,49 @@ using namespace std;
 //With command:
 //   g++ -o qwackPot/qwackConvert qwackPot/qwackConvert.cxx
 
+
+////////////////////////////////////////////////////////////////////////////////////////
+string extractSubstring(const string& str, const string& label, const string& delim, bool searchForward) {
+  size_t labelPos = str.find(label); 
+  if(labelPos == string::npos) { return ""; } // If the label is not found, return an empty string
+  size_t startPos = 0;
+
+  //----------------------------------------
+  if(searchForward) {
+    startPos = labelPos + label.length(); // Skip over the label for forward search
+    size_t endPos = str.find(delim, startPos); // Find the delimiter after the label
+    if (endPos == string::npos) { return ""; } // If no delim, return empty string
+    else { return str.substr(startPos, endPos - startPos); } // Extract the substring forward
+  //----------------------------------------
+  } else {
+    size_t startPos = str.rfind(delim, labelPos);   // Find the last delimiter before the label
+    if (startPos == string::npos) { startPos = 0; } // If no delim, start from front of string
+    else { return str.substr(startPos + 1, labelPos - startPos - 1); } // Extract the substring backward
+  }
+
+  return "fail";
+}
+
+////////////////////////////////////////////////////////////////////////////////////////
 int main ( int n_args, const char** args ){
 
   // ----------------------------------------------------------
   // Read in parameters ---------------------------------------
   string unprocfile = args[1];
-  int initDoubJ     = atoi(args[2]);
-  int finalDoubJ    = atoi(args[3]);
-  int tranDoubJ     = atoi(args[4]);
-  double D20        = atof(args[5]); // NOTE: must already be
+  double D20        = atof(args[2]); // NOTE: must already be
 				     //   divided by 10^4!
+
+  // Search for parameters in file name -----------------------
+  string label, delim, buffer;
+  
+  label = "o2j-";  delim = ".";  buffer = extractSubstring(unprocfile,label,delim,1);
+  int finalDoubJ    = atoi(buffer.c_str());
+
+  label = "i2j-";  delim = "_";  buffer = extractSubstring(unprocfile,label,delim,1);
+  int initDoubJ    = atoi(buffer.c_str());
+
+  label = "_i2j";  delim = "-";  buffer = extractSubstring(unprocfile,label,delim,0);
+  int tranDoubJ    = atoi(buffer.c_str());
 
   // ----------------------------------------------------------
   // Calculate multiplier (incl. fm2/sr -> mb/sr) -------------
