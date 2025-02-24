@@ -17,7 +17,7 @@ void qwackPot(){
   ClearGlobalVariables_General();
   LoadGlobalVariables_General();
 
-  maxRad = 50.0;
+  maxRad = 30;
   stepRad = 0.1;
   npartWav = 15;
 
@@ -63,4 +63,3 @@ void qwackPot(){
   cout << "================= END =================" << endl;
   cout << "=======================================" << endl;
 }
-
